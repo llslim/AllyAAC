@@ -47,15 +47,15 @@ graph TD
 
 | File Path | Component Name | Responsibility |
 | :--- | :--- | :--- |
-| [MainActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/MainActivity.java) | `MainActivity` | Initiates BLE scans for devices starting with `"Movesense"`. Stores previously connected devices in `SharedPreferences`. |
-| [HomeActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/HomeActivity.java) | `HomeActivity` | Main navigation hub displaying links to the Record, Accessible Gestures, Annotations, Visualizations, and Help activities. |
-| [RecordActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/RecordActivity.java) | `RecordActivity` | Captures parallel inputs: video files via CameraX (`rawVideos/`) and time-synchronized sensor data CSV files (`rawData/`). |
-| [GestureCategoryActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/GestureCategoryActivity.java) | `GestureCategoryActivity` | Manages categories (stored in `master.csv`). Sets folders for each category (e.g. `trimmedData/rest`). |
-| [GestureInstanceActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/GestureInstanceActivity.java) | `GestureInstanceActivity` | Details individual trials for a gesture category (via `master_[category].csv`). Integrates a TTS preview. |
-| [VideoListActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/VideoListActivity.java) | `VideoListActivity` | Displays recorded raw videos with thumbnails using `MediaMetadataRetriever` so the user can select files to label. |
-| [TrimVideoActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/TrimVideoActivity.java) | `TrimVideoActivity` | Trims videos and coordinates data alignment. Extracts the raw IMU data corresponding to the trimmed video interval. |
-| [VisualizationActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/VisualizationActivity.java) | `VisualizationActivity` | Plays two instance videos side-by-side while simultaneously plotting X/Y/Z sensor feeds on a single timeline. |
-| [AccessibleActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/AccessibleActivity.java) | `AccessibleActivity` | Serves as the user-facing AAC grid layout. Subscribes to the live sensor and feeds the stream to the K-Means classifier. |
+| [MainActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/MainActivity.java) | `MainActivity` | Initiates BLE scans for devices starting with `"Movesense"`. Stores previously connected devices in `SharedPreferences`. |
+| [HomeActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/HomeActivity.java) | `HomeActivity` | Main navigation hub displaying links to the Record, Accessible Gestures, Annotations, Visualizations, and Help activities. |
+| [RecordActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/RecordActivity.java) | `RecordActivity` | Captures parallel inputs: video files via CameraX (`rawVideos/`) and time-synchronized sensor data CSV files (`rawData/`). |
+| [GestureCategoryActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/GestureCategoryActivity.java) | `GestureCategoryActivity` | Manages categories (stored in `master.csv`). Sets folders for each category (e.g. `trimmedData/rest`). |
+| [GestureInstanceActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/GestureInstanceActivity.java) | `GestureInstanceActivity` | Details individual trials for a gesture category (via `master_[category].csv`). Integrates a TTS preview. |
+| [VideoListActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/VideoListActivity.java) | `VideoListActivity` | Displays recorded raw videos with thumbnails using `MediaMetadataRetriever` so the user can select files to label. |
+| [TrimVideoActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/TrimVideoActivity.java) | `TrimVideoActivity` | Trims videos and coordinates data alignment. Extracts the raw IMU data corresponding to the trimmed video interval. |
+| [VisualizationActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/VisualizationActivity.java) | `VisualizationActivity` | Plays two instance videos side-by-side while simultaneously plotting X/Y/Z sensor feeds on a single timeline. |
+| [AccessibleActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/AccessibleActivity.java) | `AccessibleActivity` | Serves as the user-facing AAC grid layout. Subscribes to the live sensor and feeds the stream to the K-Means classifier. |
 
 ---
 
@@ -68,7 +68,7 @@ When raw data is recorded, each sample's timestamp is formatted:
 `timestamp + index * 20L` (approx. 50Hz, corresponding to a 20ms step interval). This timestamp matching allows `TrimVideoActivity` to precisely crop the IMU CSV rows when a user crops the raw `.mp4` file.
 
 ### B. Signal Preprocessing & Cleaning (`CSVFile`)
-The [CSVFile.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/CSVEditor/CSVFile.java) helper is responsible for preparing sensor records:
+The [CSVFile.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/CSVEditor/CSVFile.java) helper is responsible for preparing sensor records:
 * **Smoothing (`applyMovingAverage`)**: Applies a simple moving average (sliding window of size 2) over the `acc_x`, `acc_y`, and `acc_z` raw parameters to suppress jitter.
 * **Velocity Estimation (`applyDifferentiation`)**: Computes discrete derivatives ($a_{t} - a_{t-1}$) to track velocity changes.
 
@@ -90,13 +90,13 @@ The classifier maps continuous 3D motion channels to discrete classification out
 
 > [!WARNING]
 > ### 1. Syntax Typo in Class Declaration
-> Inside [GestureCategoryActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/GestureCategoryActivity.java#L24), there is a syntax error in the class signature:
+> Inside [GestureCategoryActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/GestureCategoryActivity.java#L24), there is a syntax error in the class signature:
 > `public class git add GestureCategoryActivity extends AppCompatActivity {`
 > The prefix `"git add "` causes a compiler failure. This must be refactored to `public class GestureCategoryActivity extends AppCompatActivity {` to build the app.
 
 > [!NOTE]
 > ### 2. Bypassed BLE Scanning
-> In [MainActivity.java](file:///D:/Antigravity1x_backup/windows-projects/GestureFlow/app/src/main/java/com/tanujn45/a11y/MainActivity.java#L74-L78), the BLE scanning page is bypassed:
+> In [MainActivity.java](file:///D:/Antigravity1x_backup/windows-projects/AllyAAC/app/src/main/java/com/tanujn45/a11y/MainActivity.java#L74-L78), the BLE scanning page is bypassed:
 > ```java
 > // bypass for testing
 > Intent intent = new Intent(this, HomeActivity.class);

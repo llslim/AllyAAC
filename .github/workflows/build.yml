@@ -22,14 +22,14 @@ jobs:
         dotnet-version: '8.0.x'
 
     - name: Restore Dependencies
-      run: dotnet restore GestureFlowWPF/GestureFlowWPF.csproj
+      run: dotnet restore AllyAACWPF/AllyAACWPF.csproj
 
     - name: Publish Standalone Executable
       run: |
-        dotnet publish GestureFlowWPF/GestureFlowWPF.csproj -c Release -r win-x64 -p:PublishSingleFile=true -p:SelfContained=true --self-contained true -o publish_output
+        dotnet publish AllyAACWPF/AllyAACWPF.csproj -c Release -r win-x64 -p:PublishSingleFile=true -p:SelfContained=true --self-contained true -o publish_output
 
     - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: GestureFlowWPF-Release
+        name: AllyAACWPF-Release
         path: publish_output/

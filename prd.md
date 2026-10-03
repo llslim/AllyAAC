@@ -1,6 +1,6 @@
-# Product Requirements Document (PRD) - GestureFlow / SensorCator
+# Product Requirements Document (PRD) - AllyAAC / SensorCator
 
-This PRD outlines the requirements, research findings, and phased release plan for building **GestureFlow (SensorCator)**. The goal is to create an assistive hand-gesture recognition tool that integrates inertial measurement unit (IMU) telemetry and computer vision feeds into an Augmentative and Alternative Communication (AAC) dashboard.
+This PRD outlines the requirements, research findings, and phased release plan for building **AllyAAC (SensorCator)**. The goal is to create an assistive hand-gesture recognition tool that integrates inertial measurement unit (IMU) telemetry and computer vision feeds into an Augmentative and Alternative Communication (AAC) dashboard.
 
 ---
 
@@ -136,10 +136,10 @@ To avoid high complexity at start-up, development is structured into 5 progressi
   * **Gesture Stream Input**: Background sensor/camera gesture matches activate their associated vocabulary cards.
   * **IMU Gesture-Only Mode**: Bypasses the GUI screen when the user is away from the screen. In this mode (with Speech On), a recognized IMU gesture match either speaks the card's Audio Speech Output (custom TTS or recorded audio file) or executes its associated control button command (e.g. triggering the "Speak" command to read the accumulated message or triggering "Clear Display").
 
-### Phase 5: GestureFlow Model Context Protocol (MCP) Server
+### Phase 5: AllyAAC Model Context Protocol (MCP) Server
 * **Goal**: Connect physical gestures to AI agent workflows.
 * **Features**:
-  * Build an MCP server wrapper around the GestureFlow daemon.
+  * Build an MCP server wrapper around the AllyAAC daemon.
   * Expose tools like `get_current_pose`, `register_hot_gesture`, and `listen_gestures`.
   * Enable AI models to run custom logic (e.g. writing code, sending messages, running commands) triggered by a physical gesture.
 
@@ -159,7 +159,7 @@ To avoid high complexity at start-up, development is structured into 5 progressi
 ### Phase 1 UI Mockup Layout
 ```
 +-------------------------------------------------------------+
-|  GestureFlow - Sensor Control Hub                          |
+|  AllyAAC - Sensor Control Hub                          |
 +-------------------------------------------------------------+
 | [ Scan Devices ]                                            |
 |                                                             |
