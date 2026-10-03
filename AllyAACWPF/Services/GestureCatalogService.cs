@@ -15,7 +15,7 @@ namespace AllyAACWPF.Services
 
         public GestureCatalogService()
         {
-            string baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SensorCator");
+            string baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AllyAAC");
             _gesturesFolder = Path.Combine(baseFolder, "gestures");
 
             if (!Directory.Exists(_gesturesFolder))

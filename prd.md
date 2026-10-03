@@ -1,6 +1,6 @@
-# Product Requirements Document (PRD) - AllyAAC / SensorCator
+# Product Requirements Document (PRD) - AllyAAC / AllyAAC
 
-This PRD outlines the requirements, research findings, and phased release plan for building **AllyAAC (SensorCator)**. The goal is to create an assistive hand-gesture recognition tool that integrates inertial measurement unit (IMU) telemetry and computer vision feeds into an Augmentative and Alternative Communication (AAC) dashboard.
+This PRD outlines the requirements, research findings, and phased release plan for building **AllyAAC (AllyAAC)**. The goal is to create an assistive hand-gesture recognition tool that integrates inertial measurement unit (IMU) telemetry and computer vision feeds into an Augmentative and Alternative Communication (AAC) dashboard.
 
 ---
 
@@ -34,7 +34,7 @@ We investigated the developer ecosystem for existing CLIs, APIs, MCP (Model Cont
   * *Concept*: A classic time-series matching algorithm. Unlike Longest Common Subsequence (LCS) which requires continuous signal quantization (e.g. into cluster IDs using K-Means), DTW measures similarity between two temporal sequences directly in continuous coordinate space (x, y, z), accounting for differences in speed.
   * *Libraries*: FastDTW (Java/Python), or custom lightweight implementations in C#/Java.
 * **Weka ML Suite**:
-  * *Concept*: A collection of machine learning algorithms for data mining. SensorCator utilizes Weka's `SimpleKMeans` clustering to quantize raw acceleration/velocity coordinates.
+  * *Concept*: A collection of machine learning algorithms for data mining. AllyAAC utilizes Weka's `SimpleKMeans` clustering to quantize raw acceleration/velocity coordinates.
 * **ML.NET**:
   * *Concept*: Microsoft's ML library for .NET development. Supports K-Means and regression pipelines, suitable if building a Windows desktop app.
 * **TensorFlow Lite (TFLite)**:

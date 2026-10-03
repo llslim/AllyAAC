@@ -1,11 +1,11 @@
-# SensorCator Repository Analysis Report
+# AllyAAC Repository Analysis Report
 
-This report provides a comprehensive review of the **SensorCator** Android application repository ([llslim/SensorCator](https://github.com/llslim/SensorCator)), including its directory layout, component architecture, algorithmic workflows, and code quality findings.
+This report provides a comprehensive review of the **AllyAAC** Android application repository ([llslim/AllyAAC](https://github.com/llslim/AllyAAC)), including its directory layout, component architecture, algorithmic workflows, and code quality findings.
 
 ---
 
 ## 1. Executive Summary
-The **SensorCator** (app name **A11y**) is an Android accessibility tool built to record, manage, compare, and recognize hand gestures using wearable **Movesense IMU sensors** and phone camera feeds. It implements an Augmentative and Alternative Communication (AAC) dashboard, converting classified motion patterns into Text-to-Speech (TTS) voice commands.
+The **AllyAAC** (app name **A11y**) is an Android accessibility tool built to record, manage, compare, and recognize hand gestures using wearable **Movesense IMU sensors** and phone camera feeds. It implements an Augmentative and Alternative Communication (AAC) dashboard, converting classified motion patterns into Text-to-Speech (TTS) voice commands.
 
 ---
 

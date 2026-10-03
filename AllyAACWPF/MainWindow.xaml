@@ -7,7 +7,7 @@
         xmlns:helpers="clr-namespace:AllyAACWPF.Helpers"
         xmlns:lvc="clr-namespace:LiveChartsCore.SkiaSharpView.WPF;assembly=LiveChartsCore.SkiaSharpView.WPF"
         mc:Ignorable="d"
-        Title="AllyAAC - SensorCator Windows Port" Height="700" Width="1250"
+        Title="AllyAAC - AllyAAC Windows Port" Height="700" Width="1250"
         Background="#11111B" SnapsToDevicePixels="True" WindowStartupLocation="CenterScreen">
     
     <Window.Resources>
@@ -606,7 +606,7 @@
 
                                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                     <TextBlock Text="RECORD NEW TELEMETRY" FontSize="11" FontWeight="Bold" Foreground="#89B4FA"/>
-                                    <TextBlock Text="Establish a sensor connection, then toggle recording to output IMU CSV files to Documents/SensorCator/rawData/" 
+                                    <TextBlock Text="Establish a sensor connection, then toggle recording to output IMU CSV files to Documents/AllyAAC/rawData/" 
                                                TextWrapping="Wrap" Foreground="#A6ADC8" FontSize="12" Margin="0,4,15,0" />
                                 </StackPanel>
 

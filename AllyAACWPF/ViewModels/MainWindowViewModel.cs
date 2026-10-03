@@ -116,7 +116,7 @@ namespace AllyAACWPF.ViewModels
             _gestureCatalogService = new GestureCatalogService();
 
             // Setup local folders under MyDocuments/SensorCator
-            _baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SensorCator");
+            _baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AllyAAC");
             _rawFolder = Path.Combine(_baseFolder, "rawData");
             _trimmedFolder = Path.Combine(_baseFolder, "trimmedData");
 

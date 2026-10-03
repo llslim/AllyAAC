@@ -17,7 +17,7 @@ namespace AllyAACWPF.Services
 
         public AacStorageService()
         {
-            string baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "SensorCator");
+            string baseFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "AllyAAC");
             _aacFolder = Path.Combine(baseFolder, "aac");
             _settingsFile = Path.Combine(_aacFolder, "settings.json");
             _cardsFile = Path.Combine(_aacFolder, "cards.json");
