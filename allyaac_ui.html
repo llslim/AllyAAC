@@ -1592,6 +1592,14 @@ body {
           <span class="text-[10px] text-[#A6ADC8]">Frame-accurate alignment of physical movements with 9-DoF acceleration & inclinometry</span>
         </div>
         <div class="flex items-center gap-2 flex-wrap">
+          <div id="annotator-countdown-pill" class="hidden items-center gap-1 px-2.5 py-1 bg-[#F9E2AF]/20 border border-[#F9E2AF]/40 text-[#F9E2AF] rounded-lg text-xs font-black animate-bounce">
+            <span>⏳ Prepare:</span>
+            <span id="annotator-countdown-val">3</span>
+          </div>
+          <button id="annotator-record-btn" onclick="startStudioRecordingWizard()" class="px-3 py-1.5 bg-[#F38BA8] hover:bg-[#E78284] text-[#11111B] text-xs font-black rounded-lg transition active:scale-95 flex items-center gap-1.5 shadow-sm" title="Start or stop synchronized Video + IMU recording">
+            <span id="annotator-record-icon">⏺</span>
+            <span id="annotator-record-text">Record Gesture</span>
+          </button>
           <button onclick="autoDetectBoundaries()" class="px-2.5 py-1.5 bg-[#A6E3A1]/10 hover:bg-[#A6E3A1]/20 border border-[#A6E3A1]/30 text-[#A6E3A1] text-xs font-bold rounded-lg transition active:scale-95 flex items-center gap-1">
             <span>✨</span> Auto-Segment
           </button>
@@ -1634,7 +1642,7 @@ body {
                 <button onclick="toggleAnnotatorLiveCamera()" class="px-3 py-1.5 bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] font-bold rounded-lg text-xs transition active:scale-95 shadow-sm">
                   📹 Turn On Camera
                 </button>
-                <button onclick="switchStudioSubTab('oscilloscope'); startStudioRecordingWizard();" class="px-3 py-1.5 bg-[#F38BA8] hover:bg-[#E78284] text-[#11111B] font-bold rounded-lg text-xs transition active:scale-95 shadow-sm">
+                <button onclick="startStudioRecordingWizard()" class="px-3 py-1.5 bg-[#F38BA8] hover:bg-[#E78284] text-[#11111B] font-bold rounded-lg text-xs transition active:scale-95 shadow-sm">
                   ⏺ Record Gesture
                 </button>
               </div>
@@ -3828,25 +3836,42 @@ function startStudioRecordingWizard() {
 
   const countdownPill = document.getElementById('studio-countdown-pill');
   const countdownVal = document.getElementById('studio-countdown-val');
-  if (!countdownPill || !countdownVal) {
+  const annotatorPill = document.getElementById('annotator-countdown-pill');
+  const annotatorVal = document.getElementById('annotator-countdown-val');
+
+  if (!countdownPill && !annotatorPill) {
     startActualRecording();
     return;
   }
 
-  countdownPill.classList.remove('hidden');
-  countdownPill.classList.add('flex');
   let remaining = 3;
-  countdownVal.textContent = remaining;
+  if (countdownPill && countdownVal) {
+    countdownPill.classList.remove('hidden');
+    countdownPill.classList.add('flex');
+    countdownVal.textContent = remaining;
+  }
+  if (annotatorPill && annotatorVal) {
+    annotatorPill.classList.remove('hidden');
+    annotatorPill.classList.add('flex');
+    annotatorVal.textContent = remaining;
+  }
 
   clearInterval(studioCountdownTimer);
   studioCountdownTimer = setInterval(() => {
     remaining--;
     if (remaining > 0) {
-      countdownVal.textContent = remaining;
+      if (countdownVal) countdownVal.textContent = remaining;
+      if (annotatorVal) annotatorVal.textContent = remaining;
     } else {
       clearInterval(studioCountdownTimer);
-      countdownPill.classList.add('hidden');
-      countdownPill.classList.remove('flex');
+      if (countdownPill) {
+        countdownPill.classList.add('hidden');
+        countdownPill.classList.remove('flex');
+      }
+      if (annotatorPill) {
+        annotatorPill.classList.add('hidden');
+        annotatorPill.classList.remove('flex');
+      }
       startActualRecording();
     }
   }, 1000);
@@ -3858,16 +3883,19 @@ function startActualRecording() {
   if (typeof startVideoSyncRecording === 'function') {
     startVideoSyncRecording();
   }
-  const btn = document.getElementById('studio-record-btn');
-  const icon = document.getElementById('studio-record-icon');
-  const text = document.getElementById('studio-record-text');
 
-  if (btn) {
-    btn.classList.remove('bg-[#F38BA8]');
-    btn.classList.add('bg-[#A6E3A1]');
-  }
-  if (icon) icon.textContent = '⏹';
-  if (text) text.textContent = 'Stop Recording';
+  // Update both Oscilloscope and Annotator Record buttons
+  ['studio', 'annotator'].forEach(prefix => {
+    const btn = document.getElementById(`${prefix}-record-btn`);
+    const icon = document.getElementById(`${prefix}-record-icon`);
+    const text = document.getElementById(`${prefix}-record-text`);
+    if (btn) {
+      btn.classList.remove('bg-[#F38BA8]', 'hover:bg-[#E78284]');
+      btn.classList.add('bg-[#A6E3A1]', 'hover:bg-[#94E2D5]');
+    }
+    if (icon) icon.textContent = '⏹';
+    if (text) text.textContent = 'Stop Recording';
+  });
 }
 
 function stopStudioRecording() {
@@ -3875,19 +3903,23 @@ function stopStudioRecording() {
   if (typeof stopVideoSyncRecording === 'function') {
     stopVideoSyncRecording();
   }
-  const btn = document.getElementById('studio-record-btn');
-  const icon = document.getElementById('studio-record-icon');
-  const text = document.getElementById('studio-record-text');
 
-  if (btn) {
-    btn.classList.remove('bg-[#A6E3A1]');
-    btn.classList.add('bg-[#F38BA8]');
-  }
-  if (icon) icon.textContent = '⏺';
   const ptsCount = studioRecordSession.length || (typeof videoSyncState !== 'undefined' ? videoSyncState.activeSession?.imuSamples?.length || 0 : 0);
-  if (text) text.textContent = 'Record Gesture (' + ptsCount + ' pts)';
+  const labelText = ptsCount > 0 ? `Record Gesture (${ptsCount} pts)` : 'Record Gesture';
 
-  if (studioRecordSession.length >= 10 || (typeof videoSyncState !== 'undefined' && videoSyncState.activeSession?.imuSamples?.length >= 5)) {
+  ['studio', 'annotator'].forEach(prefix => {
+    const btn = document.getElementById(`${prefix}-record-btn`);
+    const icon = document.getElementById(`${prefix}-record-icon`);
+    const text = document.getElementById(`${prefix}-record-text`);
+    if (btn) {
+      btn.classList.remove('bg-[#A6E3A1]', 'hover:bg-[#94E2D5]');
+      btn.classList.add('bg-[#F38BA8]', 'hover:bg-[#E78284]');
+    }
+    if (icon) icon.textContent = '⏺';
+    if (text) text.textContent = labelText;
+  });
+
+  if (studioRecordSession.length >= 10 || (typeof videoSyncState !== 'undefined' && (videoSyncState.activeSession?.imuSamples?.length >= 5 || videoSyncState.recordedChunks?.length > 0))) {
     // Open in Scrubber for boundary verification & synchronized review
     switchStudioSubTab('scrubber');
   }
@@ -4675,21 +4707,43 @@ async function startVideoSyncRecording() {
 
   // Attempt real MediaRecorder with webcam
   const stream = await requestCameraStream();
-  if (stream && typeof MediaRecorder !== 'undefined') {
-    try {
-      const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8'
-                 : MediaRecorder.isTypeSupported('video/webm') ? 'video/webm'
-                 : 'video/mp4';
-      const recorder = new MediaRecorder(stream, { mimeType: mime });
-      recorder.ondataavailable = (e) => {
-        if (e.data && e.data.size > 0) {
-          videoSyncState.recordedChunks.push(e.data);
-        }
-      };
-      recorder.start(100);
-      videoSyncState.mediaRecorder = recorder;
-    } catch (e) {
-      console.warn('[VideoSync] MediaRecorder setup warning:', e.message);
+  if (stream) {
+    // Ensure live camera preview is visible in Annotator during recording
+    const videoEl = document.getElementById('scrubber-sync-video');
+    const emptyState = document.getElementById('sync-video-empty-state');
+    const syntheticCanvas = document.getElementById('scrubber-synthetic-video-canvas');
+    const badge = document.getElementById('sync-video-status-badge');
+    if (videoEl) {
+      if (emptyState) emptyState.classList.add('hidden');
+      if (syntheticCanvas) syntheticCanvas.classList.add('hidden');
+      videoEl.classList.remove('hidden');
+      videoEl.removeAttribute('src');
+      videoEl.srcObject = stream;
+      videoEl.muted = true;
+      videoEl.play().catch(() => {});
+      syncAnnotatorLiveCameraUI(true);
+    }
+    if (badge) {
+      badge.textContent = '🔴 Recording Video + IMU';
+      badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-[#F38BA8]/20 text-[#F38BA8] border border-[#F38BA8]/40 font-mono animate-pulse';
+    }
+
+    if (typeof MediaRecorder !== 'undefined') {
+      try {
+        const mime = MediaRecorder.isTypeSupported('video/webm;codecs=vp8') ? 'video/webm;codecs=vp8'
+                   : MediaRecorder.isTypeSupported('video/webm') ? 'video/webm'
+                   : 'video/mp4';
+        const recorder = new MediaRecorder(stream, { mimeType: mime });
+        recorder.ondataavailable = (e) => {
+          if (e.data && e.data.size > 0) {
+            videoSyncState.recordedChunks.push(e.data);
+          }
+        };
+        recorder.start(100);
+        videoSyncState.mediaRecorder = recorder;
+      } catch (e) {
+        console.warn('[VideoSync] MediaRecorder setup warning:', e.message);
+      }
     }
   }
 }
