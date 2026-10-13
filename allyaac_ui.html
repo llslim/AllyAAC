@@ -1395,6 +1395,10 @@ body {
         <span>⚙️</span>
         <span>Directory</span>
       </button>
+      <button id="studio-subtab-help" onclick="switchStudioSubTab('help')" class="studio-subtab-btn px-3 py-1 rounded-lg font-semibold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1" title="Telemetry Physics, Axes Reference & Clinical Sway Measurement Guide">
+        <span>❓</span>
+        <span>Help</span>
+      </button>
     </div>
   </div>
 
@@ -1902,6 +1906,177 @@ body {
         <span>➕</span>
         <span>Map New Custom Gesture</span>
       </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- SUB-VIEW 5: TELEMETRY PHYSICS, AXES & SWAY REFERENCE GUIDE -->
+  <!-- ========================================================================= -->
+  <div id="studio-pane-help" class="flex-1 hidden flex-col gap-3 pt-2.5 overflow-y-auto custom-scrollbar min-h-0" style="display: none;">
+    <!-- Header Banner -->
+    <div class="bg-[#11111B] border border-[#313244] rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-sm">
+      <div>
+        <h2 class="text-sm font-black text-[#CDD6F4] flex items-center gap-2">
+          <span>📚</span> IMU Telemetry Physics, Axes & Sway Measurement Guide
+        </h2>
+        <p class="text-[11px] text-[#A6ADC8] mt-0.5">
+          Comprehensive clinical reference for 9-DoF linear acceleration, inclinometry, postural sway computation, and shockwave filtering.
+        </p>
+      </div>
+      <div class="flex items-center gap-2">
+        <span class="px-2.5 py-1 rounded-lg bg-[#89B4FA]/10 border border-[#89B4FA]/30 text-[#89B4FA] text-xs font-mono font-bold">50 Hz Movesense IMU</span>
+      </div>
+    </div>
+
+    <!-- 3 Orthogonal Axes Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <!-- Ax Card -->
+      <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
+        <div class="flex items-center justify-between border-b border-[#313244]/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#F38BA8]"></span>
+            <span class="text-xs font-black text-[#F38BA8]">Ax — Surge Axis</span>
+          </div>
+          <span class="text-[10px] font-mono text-[#A6ADC8]">Longitudinal (X)</span>
+        </div>
+        <p class="text-[11px] text-[#CDD6F4] leading-relaxed">
+          Measures <b>forward and backward</b> motion along the length of the forearm.
+        </p>
+        <div class="text-[10px] bg-[#181825] p-2 rounded-lg border border-[#313244] space-y-1 text-[#A6ADC8]">
+          <div><b class="text-[#F38BA8]">Physical Actions:</b> Reaching arm forward, pulling back, or tilting the forearm upward/downward.</div>
+          <div><b class="text-[#F38BA8]">Inclinometer Role:</b> Directly drives <b>Pitch</b> angle calculation relative to Earth's gravity: <code class="text-[#CDD6F4]">atan2(Ax, √(Ay²+Az²))</code>.</div>
+        </div>
+      </div>
+
+      <!-- Ay Card -->
+      <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
+        <div class="flex items-center justify-between border-b border-[#313244]/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#A6E3A1]"></span>
+            <span class="text-xs font-black text-[#A6E3A1]">Ay — Sway Axis</span>
+          </div>
+          <span class="text-[10px] font-mono text-[#A6ADC8]">Lateral (Y)</span>
+        </div>
+        <p class="text-[11px] text-[#CDD6F4] leading-relaxed">
+          Measures <b>side-to-side / lateral</b> motion across the wrist or wheelchair tray.
+        </p>
+        <div class="text-[10px] bg-[#181825] p-2 rounded-lg border border-[#313244] space-y-1 text-[#A6ADC8]">
+          <div><b class="text-[#A6E3A1]">Physical Actions:</b> Waving hand left-to-right, lateral tremors, or pronation/supination twisting.</div>
+          <div><b class="text-[#A6E3A1]">Inclinometer Role:</b> Drives <b>Roll</b> angle calculation relative to Earth's gravity: <code class="text-[#CDD6F4]">atan2(Ay, Az)</code>.</div>
+        </div>
+      </div>
+
+      <!-- Az Card -->
+      <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3.5 flex flex-col gap-2.5 shadow-sm">
+        <div class="flex items-center justify-between border-b border-[#313244]/60 pb-2">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full bg-[#89B4FA]"></span>
+            <span class="text-xs font-black text-[#89B4FA]">Az — Heave Axis</span>
+          </div>
+          <span class="text-[10px] font-mono text-[#A6ADC8]">Vertical (Z)</span>
+        </div>
+        <p class="text-[11px] text-[#CDD6F4] leading-relaxed">
+          Measures <b>vertical up-and-down</b> motion perpendicular to the sensor pod face.
+        </p>
+        <div class="text-[10px] bg-[#181825] p-2 rounded-lg border border-[#313244] space-y-1 text-[#A6ADC8]">
+          <div><b class="text-[#89B4FA]">Physical Actions:</b> Lifting the arm upward, tapping or knocking down against a table or wheelchair tray.</div>
+          <div><b class="text-[#89B4FA]">Gravity Vector:</b> When resting flat palm-down, Az registers ~<b>9.8 m/s² (1.0G)</b> of Earth gravity.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Can We Calculate Sway? Deep-Dive Section -->
+    <div class="bg-[#11111B] border border-[#313244] rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between border-b border-[#313244]/60 pb-2">
+        <span class="text-xs font-black text-[#A6E3A1] flex items-center gap-1.5 uppercase tracking-wider">
+          <span>🔬</span> Can We Calculate Sway? (Clinical Posturography & Biomechanics)
+        </span>
+        <span class="text-[10px] text-[#A6ADC8] font-mono">RMS • Path Length • Peak-to-Peak</span>
+      </div>
+
+      <div class="text-xs text-[#CDD6F4] leading-relaxed space-y-2">
+        <p>
+          <b>Yes, absolutely!</b> In clinical biomechanics and vestibular rehabilitation, <b>Sway</b> represents the involuntary or voluntary displacement of the body or limb away from equilibrium. Using the Movesense 50Hz telemetry stream, we calculate Sway in three ways:
+        </p>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3 pt-1">
+          <!-- Method 1: Instantaneous Lateral Sway Velocity/Acceleration -->
+          <div class="bg-[#181825] border border-[#313244] p-3 rounded-xl flex flex-col gap-1.5">
+            <div class="text-[11px] font-bold text-[#A6E3A1] flex items-center gap-1">
+              <span>1️⃣</span> Instantaneous Lateral Sway
+            </div>
+            <p class="text-[10px] text-[#A6ADC8]">
+              Raw lateral acceleration on the <b class="text-[#A6E3A1]">Ay</b> axis isolated from static tilt. A sudden spike in Ay indicates an intentional lateral swipe or wave gesture.
+            </p>
+            <div class="mt-auto pt-1 font-mono text-[9px] text-[#FAB387] bg-[#11111B] p-1.5 rounded">
+              Sway_lat(t) = Ay(t) - g · sin(Roll)
+            </div>
+          </div>
+
+          <!-- Method 2: RMS Postural Sway -->
+          <div class="bg-[#181825] border border-[#313244] p-3 rounded-xl flex flex-col gap-1.5">
+            <div class="text-[11px] font-bold text-[#89B4FA] flex items-center gap-1">
+              <span>2️⃣</span> RMS Postural Sway (Root Mean Square)
+            </div>
+            <p class="text-[10px] text-[#A6ADC8]">
+              Standard clinical metric for tremor or ambient wheelchair vibration. Measures standard deviation of sway across a sliding time window.
+            </p>
+            <div class="mt-auto pt-1 font-mono text-[9px] text-[#89B4FA] bg-[#11111B] p-1.5 rounded">
+              RMS_Sway = √( 1/N · Σ (Ay_i - μ_y)² )
+            </div>
+          </div>
+
+          <!-- Method 3: 2D Sway Path Length / Ellipse Area -->
+          <div class="bg-[#181825] border border-[#313244] p-3 rounded-xl flex flex-col gap-1.5">
+            <div class="text-[11px] font-bold text-[#CBA6F7] flex items-center gap-1">
+              <span>3️⃣</span> 2D Sway Path Length (COP / Trajectory)
+            </div>
+            <p class="text-[10px] text-[#A6ADC8]">
+              Cumulative distance traveled by the wrist in the horizontal plane (Ax vs Ay). Used in neurology to evaluate ataxia and motor control stability.
+            </p>
+            <div class="mt-auto pt-1 font-mono text-[9px] text-[#CBA6F7] bg-[#11111B] p-1.5 rounded">
+              Path_Length = Σ √( (ΔAx)² + (ΔAy)² )
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Magnitude and Shockwave Section -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+      <!-- Net Magnitude Card -->
+      <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3.5 flex flex-col gap-2 shadow-sm">
+        <div class="flex items-center justify-between border-b border-[#313244]/60 pb-1.5">
+          <span class="text-xs font-black text-[#A6E3A1]">Total Acceleration Magnitude (|M|)</span>
+          <span class="text-[10px] font-mono text-[#A6ADC8]">Scalar Sum</span>
+        </div>
+        <p class="text-[11px] text-[#CDD6F4] leading-relaxed">
+          The total instantaneous Euclidean norm of acceleration across all 3 spatial axes:
+        </p>
+        <div class="font-mono text-xs text-[#A6E3A1] bg-[#181825] p-2 rounded-lg border border-[#313244] text-center">
+          |M| = √( Ax² + Ay² + Az² )
+        </div>
+        <p class="text-[10px] text-[#A6ADC8]">
+          At complete rest in any rotational orientation, <b>|M| = 9.8 m/s² (1.0G)</b> because Earth's gravitational pull is constant.
+        </p>
+      </div>
+
+      <!-- Dynamic Surge Magnitude Card -->
+      <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3.5 flex flex-col gap-2 shadow-sm">
+        <div class="flex items-center justify-between border-b border-[#313244]/60 pb-1.5">
+          <span class="text-xs font-black text-[#FAB387]">Dynamic Surge Shock (|M| - 9.8)</span>
+          <span class="text-[10px] font-mono text-[#A6ADC8]">Orange Trace</span>
+        </div>
+        <p class="text-[11px] text-[#CDD6F4] leading-relaxed">
+          Subtracting static Earth gravity isolates pure <b>kinetic shockwaves and voluntary gesture energy</b>:
+        </p>
+        <div class="font-mono text-xs text-[#FAB387] bg-[#181825] p-2 rounded-lg border border-[#313244] text-center">
+          Surge = |M| - 9.8 m/s²
+        </div>
+        <p class="text-[10px] text-[#A6ADC8]">
+          Resting reads <b>0.0 m/s²</b>. A table knock or arm flick creates an immediate positive spike used by the Tier 0 Kinematic engine for trigger detection.
+        </p>
+      </div>
     </div>
   </div>
 
@@ -3559,7 +3734,7 @@ function setAnnotatorTrackMode(mode) {
 
 function switchStudioSubTab(tabName) {
   activeStudioSubTab = tabName;
-  ['oscilloscope', 'scrubber', 'diagnostics', 'config'].forEach(tab => {
+  ['oscilloscope', 'scrubber', 'diagnostics', 'config', 'help'].forEach(tab => {
     const pane = document.getElementById('studio-pane-' + tab);
     const btn = document.getElementById('studio-subtab-' + tab);
     if (pane) {
