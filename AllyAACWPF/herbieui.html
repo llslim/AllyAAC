@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AllyAAC-Windows - Multi-Modal Gesture AAC</title>
+  <title>AllyAAC - Multi-Modal AAC & Gesture Studio</title>
   <script src="tailwindcss.min.js"></script>
   <style>
 body {
@@ -1144,8 +1144,8 @@ body {
   <div class="flex items-center gap-3">
     <div class="flex items-center gap-2">
       <h1 class="app-name-bind text-lg font-black tracking-tight bg-gradient-to-r from-[#89B4FA] via-[#CBA6F7] to-[#F5C2E7] bg-clip-text text-transparent">
-            AllyAAC-Windows
-          </h1>
+        AllyAAC
+      </h1>
       <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md bg-[#89B4FA]/20 text-[#89B4FA] border border-[#89B4FA]/40 font-mono">v3.0.2</span>
     </div>
 
@@ -1675,39 +1675,67 @@ body {
 
         <!-- Multi-Channel IMU Timeline & Telemetry Scrubber (Cols 6-12 on desktop) -->
         <div class="lg:col-span-7 flex flex-col justify-between gap-2 bg-[#181825] p-2.5 rounded-xl border border-[#313244]">
-          <!-- Telemetry Readout Pill at Current Scrubbed Frame -->
+          <!-- Telemetry Readout Pill & Mode Toggle in Annotator -->
           <div class="flex items-center justify-between px-2.5 py-1.5 bg-[#11111B] rounded-lg border border-[#313244] text-[11px] font-mono flex-wrap gap-1">
-            <span class="text-[#89B4FA] font-bold">FRAME IMU:</span>
-            <span class="text-[#F38BA8]">Ax: <b id="sync-imu-ax">0.0</b></span>
-            <span class="text-[#A6E3A1]">Ay: <b id="sync-imu-ay">0.0</b></span>
-            <span class="text-[#89B4FA]">Az: <b id="sync-imu-az">9.8</b></span>
-            <span class="text-[#FAB387]">|M|: <b id="sync-imu-mag">9.8</b></span>
-            <span class="text-[#CBA6F7]">Pitch: <b id="sync-imu-pitch">0°</b></span>
-            <span class="text-[#F9E2AF]">Roll: <b id="sync-imu-roll">0°</b></span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <!-- Mode Switcher Pill -->
+              <div class="inline-flex rounded-md bg-[#181825] p-0.5 border border-[#313244]">
+                <button id="btn-annotator-mode-live" onclick="setAnnotatorTrackMode('live')" class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#89B4FA] text-[#11111B] transition active:scale-95 flex items-center gap-1" title="Show Live Real-Time Oscilloscope Waveform">
+                  <span>🔬</span> <span>Live Waveform</span>
+                </button>
+                <button id="btn-annotator-mode-scrubber" onclick="setAnnotatorTrackMode('scrubber')" class="px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1" title="Show Interactive Scrubbable Recorded Timeline">
+                  <span>🎞️</span> <span>Scrubber</span>
+                </button>
+              </div>
+              <span class="text-[#89B4FA] font-bold">IMU:</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="text-[#F38BA8]">Ax: <b id="sync-imu-ax">0.0</b></span>
+              <span class="text-[#A6E3A1]">Ay: <b id="sync-imu-ay">0.0</b></span>
+              <span class="text-[#89B4FA]">Az: <b id="sync-imu-az">9.8</b></span>
+              <span class="text-[#FAB387]">|M|: <b id="sync-imu-mag">9.8</b></span>
+              <span class="text-[#CBA6F7]">Pitch: <b id="sync-imu-pitch">0°</b></span>
+              <span class="text-[#F9E2AF]">Roll: <b id="sync-imu-roll">0°</b></span>
+            </div>
           </div>
 
-          <!-- Scrubber Timeline Track -->
-          <div class="timeline-scrubber-track h-32 w-full relative cursor-pointer" id="scrubber-track-container" onclick="handleScrubberTrackClick(event)">
+          <!-- Dual Track Container: Live Oscilloscope OR Interactive Scrubber -->
+          <!-- 1. Live Oscilloscope Track (Active during recording and live preview) -->
+          <div id="annotator-live-track-container" class="h-32 w-full relative rounded-lg overflow-hidden border border-[#313244] bg-[#11111B]">
+            <canvas id="annotator-live-waveform-canvas" width="800" height="128" class="w-full h-full block"></canvas>
+            <div class="absolute top-1.5 right-2 flex items-center gap-2 text-[10px] font-mono text-[#A6ADC8] bg-[#11111B]/80 px-2 py-0.5 rounded border border-[#313244]/60">
+              <span class="w-2 h-2 rounded-full bg-[#89B4FA] animate-pulse"></span>
+              <span id="annotator-live-fps">50 Hz</span>
+              <span id="annotator-live-window">-2.4s Window</span>
+            </div>
+          </div>
+
+          <!-- 2. Recorded Scrubber Track (Active after recording stops for frame-accurate scrubbing) -->
+          <div id="scrubber-track-container" class="timeline-scrubber-track h-32 w-full relative cursor-pointer hidden" onclick="handleScrubberTrackClick(event)">
             <canvas id="scrubber-timeline-canvas" width="800" height="128" class="w-full h-full block"></canvas>
             <!-- Dynamic candidate boundary box overlay -->
             <div id="scrubber-boundary-box" class="timeline-boundary-box hidden" style="left: 20%; width: 35%;">
               <div class="absolute -top-6 left-1 text-[9px] font-bold px-1.5 py-0.5 rounded bg-[#89B4FA] text-[#11111B]" id="boundary-label-pill">Candidate Segment</div>
             </div>
-            <!-- Interactive Synchronized Playhead Line -->
-            <div id="scrubber-sync-playhead" class="timeline-sync-playhead" style="left: 0%;"></div>
+            <!-- Interactive Synchronized Playhead Line with Time Stamp Badge -->
+            <div id="scrubber-sync-playhead" class="timeline-sync-playhead" style="left: 0%;">
+              <div id="scrubber-playhead-stamp" class="absolute -top-5 -translate-x-1/2 bg-[#89B4FA] text-[#11111B] text-[9px] font-mono font-black px-1 rounded shadow-sm whitespace-nowrap pointer-events-none">0.00s</div>
+            </div>
           </div>
 
-          <div class="flex items-center justify-between text-[10px] text-[#6C7086] font-mono px-1">
+          <!-- Legend, Scale & In/Out Boundary Control Strip -->
+          <div class="flex items-center justify-between text-[10px] text-[#6C7086] font-mono px-1 flex-wrap gap-1">
             <div class="flex items-center gap-2">
               <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#F38BA8]"></span> Ax</span>
               <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#A6E3A1]"></span> Ay</span>
               <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#89B4FA]"></span> Az</span>
-              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#FAB387]"></span> |M|</span>
+              <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#FAB387]"></span> |M|-9.8</span>
+              <span class="text-[#A6ADC8]/60">Scale: ±25 m/s²</span>
             </div>
-            <div class="flex items-center gap-2">
-              <button onclick="setCandidateBoundaryStart()" class="hover:text-[#89B4FA] font-bold transition">Set [ In</button>
-              <button onclick="setCandidateBoundaryEnd()" class="hover:text-[#89B4FA] font-bold transition">Set Out ]</button>
-              <span>Click track to scrub</span>
+            <div id="scrubber-boundary-controls" class="flex items-center gap-2">
+              <button onclick="setCandidateBoundaryStart()" class="hover:text-[#89B4FA] text-[#CDD6F4] font-bold transition px-1.5 py-0.5 bg-[#313244]/60 rounded">Set [ In</button>
+              <button onclick="setCandidateBoundaryEnd()" class="hover:text-[#89B4FA] text-[#CDD6F4] font-bold transition px-1.5 py-0.5 bg-[#313244]/60 rounded">Set Out ]</button>
+              <span class="text-[#A6ADC8]">Click track to scrub</span>
             </div>
           </div>
         </div>
@@ -1999,8 +2027,8 @@ body {
 const urlParams = new URLSearchParams(window.location.search);
 
 window.SCOOBY_CONFIG = Object.assign({
-  appName: urlParams.get('app') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.appName) || "AllyAAC-Windows",
-  tagline: urlParams.get('tagline') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.tagline) || "Movesense 9-DoF BLE & MediaPipe Hand Tracking (Multi-Modal AAC)",
+  appName: urlParams.get('app') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.appName) || "AllyAACUI",
+  tagline: urlParams.get('tagline') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.tagline) || "Canonical Multi-Modal Multiplexing AAC & Gesture Studio",
   platform: "Multi-Modal Desktop & Tablet • 1250×700",
   sensorThresholds: {
     pitchThresh: 25,
@@ -3492,6 +3520,43 @@ function initGestureStudio() {
 // -------------------------------------------------------------
 // SUB-TAB ROUTER (Oscilloscope, Scrubber, Diagnostics, Config)
 // -------------------------------------------------------------
+let annotatorTrackMode = 'live'; // 'live' or 'scrubber'
+
+function setAnnotatorTrackMode(mode) {
+  annotatorTrackMode = mode;
+  const liveContainer = document.getElementById('annotator-live-track-container');
+  const scrubberContainer = document.getElementById('scrubber-track-container');
+  const boundaryControls = document.getElementById('scrubber-boundary-controls');
+  const btnLive = document.getElementById('btn-annotator-mode-live');
+  const btnScrubber = document.getElementById('btn-annotator-mode-scrubber');
+
+  if (mode === 'live') {
+    if (liveContainer) liveContainer.classList.remove('hidden');
+    if (scrubberContainer) scrubberContainer.classList.add('hidden');
+    if (boundaryControls) boundaryControls.classList.add('hidden');
+    if (btnLive) {
+      btnLive.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-[#89B4FA] text-[#11111B] transition active:scale-95 flex items-center gap-1 shadow-sm';
+    }
+    if (btnScrubber) {
+      btnScrubber.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1';
+    }
+    renderWaveformCanvas();
+  } else {
+    if (liveContainer) liveContainer.classList.add('hidden');
+    if (scrubberContainer) scrubberContainer.classList.remove('hidden');
+    if (boundaryControls) boundaryControls.classList.remove('hidden');
+    if (btnScrubber) {
+      btnScrubber.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-[#89B4FA] text-[#11111B] transition active:scale-95 flex items-center gap-1 shadow-sm';
+    }
+    if (btnLive) {
+      btnLive.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1';
+    }
+    if (typeof renderScrubberTimelineTrack === 'function') {
+      renderScrubberTimelineTrack();
+    }
+  }
+}
+
 function switchStudioSubTab(tabName) {
   activeStudioSubTab = tabName;
   ['oscilloscope', 'scrubber', 'diagnostics', 'config'].forEach(tab => {
@@ -3516,10 +3581,17 @@ function switchStudioSubTab(tabName) {
   });
 
   if (tabName === 'scrubber') {
-    if (typeof videoSyncState !== 'undefined' && videoSyncState.activeSession) {
-      loadSessionIntoSyncScrubber(videoSyncState.activeSession);
+    // If a recorded session exists with samples, show scrubber; otherwise default to live waveform
+    const hasRecordedData = (typeof videoSyncState !== 'undefined' && videoSyncState.activeSession?.imuSamples?.length > 0) || studioRecordSession.length > 0;
+    if (hasRecordedData) {
+      setAnnotatorTrackMode('scrubber');
+      if (typeof videoSyncState !== 'undefined' && videoSyncState.activeSession) {
+        loadSessionIntoSyncScrubber(videoSyncState.activeSession);
+      } else {
+        renderScrubberTimeline();
+      }
     } else {
-      renderScrubberTimeline();
+      setAnnotatorTrackMode('live');
     }
   } else if (tabName === 'diagnostics') {
     renderConfusionMatrixDefaults();
@@ -3694,6 +3766,22 @@ function updateStudioVisuals(accel, tilt, detected) {
     if (sampleRateEl) sampleRateEl.textContent = studioRecordSession.length + ' Recorded';
   }
 
+  // Update Annotator IMU HUD when in Live Waveform mode or while recording
+  if (annotatorTrackMode === 'live' || isStudioRecording) {
+    const axEl = document.getElementById('sync-imu-ax');
+    const ayEl = document.getElementById('sync-imu-ay');
+    const azEl = document.getElementById('sync-imu-az');
+    const syncMagEl = document.getElementById('sync-imu-mag');
+    const syncPitchEl = document.getElementById('sync-imu-pitch');
+    const syncRollEl = document.getElementById('sync-imu-roll');
+    if (axEl) axEl.textContent = accel.x.toFixed(1);
+    if (ayEl) ayEl.textContent = accel.y.toFixed(1);
+    if (azEl) azEl.textContent = accel.z.toFixed(1);
+    if (syncMagEl) syncMagEl.textContent = accel.mag.toFixed(1);
+    if (syncPitchEl) syncPitchEl.textContent = Math.round(tilt.pitch) + '°';
+    if (syncRollEl) syncRollEl.textContent = Math.round(tilt.roll) + '°';
+  }
+
   // Draw Waveform Canvas
   renderWaveformCanvas();
 
@@ -3720,46 +3808,87 @@ function updateStudioVisuals(accel, tilt, detected) {
 }
 
 function renderWaveformCanvas() {
-  const canvas = document.getElementById('studio-waveform-canvas');
-  if (!canvas || studioHistory.length < 2) return;
-  const ctx = canvas.getContext('2d');
-  const w = canvas.width;
-  const h = canvas.height;
-  const midY = h / 2;
+  const primaryCanvas = document.getElementById('studio-waveform-canvas');
+  const annotatorCanvas = document.getElementById('annotator-live-waveform-canvas');
+  const canvases = [primaryCanvas, annotatorCanvas].filter(Boolean);
 
-  ctx.fillStyle = '#181825';
-  ctx.fillRect(0, 0, w, h);
+  if (canvases.length === 0 || studioHistory.length < 2) return;
 
-  // Draw Grid Lines
-  ctx.strokeStyle = '#313244';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(0, midY); ctx.lineTo(w, midY);
-  ctx.moveTo(0, midY - 35); ctx.lineTo(w, midY - 35);
-  ctx.moveTo(0, midY + 35); ctx.lineTo(w, midY + 35);
-  ctx.stroke();
+  canvases.forEach(canvas => {
+    // Skip if hidden or unattached
+    if (canvas.offsetParent === null && canvas !== annotatorCanvas) return;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
+    const midY = h / 2;
 
-  const step = w / (MAX_STUDIO_HISTORY - 1);
-  const scale = 2.4; // pixel per m/s²
+    ctx.fillStyle = '#181825';
+    ctx.fillRect(0, 0, w, h);
 
-  function drawTrace(getter, strokeColor) {
-    ctx.strokeStyle = strokeColor;
-    ctx.lineWidth = 1.8;
+    // 1. Draw Horizontal Zero & Scale Guideline Grids
+    ctx.strokeStyle = '#313244';
+    ctx.lineWidth = 1;
     ctx.beginPath();
-    for (let i = 0; i < studioHistory.length; i++) {
-      const px = i * step;
-      const val = getter(studioHistory[i]);
-      const py = midY - (val * scale);
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
+    ctx.moveTo(0, midY); ctx.lineTo(w, midY);
+    ctx.moveTo(0, midY - 35); ctx.lineTo(w, midY - 35);
+    ctx.moveTo(0, midY + 35); ctx.lineTo(w, midY + 35);
     ctx.stroke();
-  }
 
-  drawTrace(s => s.x, '#F38BA8'); // X Accel
-  drawTrace(s => s.y, '#A6E3A1'); // Y Accel
-  drawTrace(s => s.z, '#89B4FA'); // Z Accel
-  drawTrace(s => s.mag - 9.8, '#FAB387'); // Dynamic surge magnitude
+    // 2. Draw Calibrated Time Ticks & Time Labels (-2.4s to 0.0s / Now)
+    // MAX_STUDIO_HISTORY is 120 samples @ 50Hz = 2.40s duration
+    const totalDurationSec = 2.4;
+    const timeDivisions = 4; // 0.6s increments: -2.4s, -1.8s, -1.2s, -0.6s, 0.0s
+    ctx.fillStyle = '#6C7086';
+    ctx.font = '9px monospace';
+    ctx.textAlign = 'center';
+
+    for (let div = 0; div <= timeDivisions; div++) {
+      const tx = (div / timeDivisions) * (w - 40) + 30; // inset slightly for Y-axis scale
+      // Tick line
+      ctx.strokeStyle = '#313244';
+      ctx.setLineDash([2, 2]);
+      ctx.beginPath();
+      ctx.moveTo(tx, 0);
+      ctx.lineTo(tx, h - 16);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Time label
+      const timeOffset = -(totalDurationSec - (div / timeDivisions) * totalDurationSec);
+      const timeText = div === timeDivisions ? '0.0s (Now)' : `${timeOffset.toFixed(1)}s`;
+      ctx.fillText(timeText, tx, h - 4);
+    }
+
+    // 3. Y-Axis Scale Markers on Left (+15, 0, -15 m/s²)
+    ctx.fillStyle = '#585B70';
+    ctx.textAlign = 'left';
+    ctx.fillText('+15', 4, midY - 32);
+    ctx.fillText('0', 4, midY + 3);
+    ctx.fillText('-15', 4, midY + 38);
+
+    // 4. Waveform Traces
+    const step = (w - 30) / (MAX_STUDIO_HISTORY - 1);
+    const scale = 2.4; // pixel per m/s²
+
+    function drawTrace(getter, strokeColor) {
+      ctx.strokeStyle = strokeColor;
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      for (let i = 0; i < studioHistory.length; i++) {
+        const px = 30 + (i * step);
+        const val = getter(studioHistory[i]);
+        const py = midY - (val * scale);
+        if (i === 0) ctx.moveTo(px, py);
+        else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    drawTrace(s => s.x, '#F38BA8'); // X Accel
+    drawTrace(s => s.y, '#A6E3A1'); // Y Accel
+    drawTrace(s => s.z, '#89B4FA'); // Z Accel
+    drawTrace(s => s.mag - 9.8, '#FAB387'); // Dynamic surge magnitude
+  });
 }
 
 function initHandSkeletonCanvas() {
@@ -3880,6 +4009,7 @@ function startStudioRecordingWizard() {
 function startActualRecording() {
   isStudioRecording = true;
   studioRecordSession = [];
+  setAnnotatorTrackMode('live');
   if (typeof startVideoSyncRecording === 'function') {
     startVideoSyncRecording();
   }
@@ -3919,6 +4049,8 @@ function stopStudioRecording() {
     if (text) text.textContent = labelText;
   });
 
+  // Switch to Scrubber mode and tab once recording stops
+  setAnnotatorTrackMode('scrubber');
   if (studioRecordSession.length >= 10 || (typeof videoSyncState !== 'undefined' && (videoSyncState.activeSession?.imuSamples?.length >= 5 || videoSyncState.recordedChunks?.length > 0))) {
     // Open in Scrubber for boundary verification & synchronized review
     switchStudioSubTab('scrubber');
@@ -5038,6 +5170,10 @@ function updateScrubberPlayheadVisual(ratio, curSec, durationSec) {
   if (playhead) {
     playhead.style.left = (ratio * 100) + '%';
   }
+  const stampEl = document.getElementById('scrubber-playhead-stamp');
+  if (stampEl) {
+    stampEl.textContent = curSec.toFixed(2) + 's';
+  }
   const timeCurEl = document.getElementById('sync-timecode-cur');
   if (timeCurEl) {
     timeCurEl.textContent = curSec.toFixed(2) + 's';
@@ -5110,7 +5246,7 @@ function renderScrubberTimelineTrack() {
   ctx.fillStyle = '#11111B';
   ctx.fillRect(0, 0, w, h);
 
-  // Background Grid Lines
+  // Background Horizontal Grid Lines
   ctx.strokeStyle = '#313244';
   ctx.lineWidth = 1;
   ctx.beginPath();
@@ -5127,6 +5263,49 @@ function renderScrubberTimelineTrack() {
     ctx.fillText('Record gesture or simulate sensor input to view aligned waveforms', w / 2, midY + 4);
     return;
   }
+
+  // Draw Calibrated Time Ticks & Time Labels across Total Session Duration
+  const totalDurationSec = (videoSyncState.activeSession?.durationMs / 1000) || (samples.length * 0.02) || 2.0;
+  // Choose reasonable tick intervals (e.g. 0.25s, 0.5s, 1.0s)
+  const tickIntervalSec = totalDurationSec <= 2 ? 0.25 : totalDurationSec <= 5 ? 0.5 : 1.0;
+  const numTicks = Math.floor(totalDurationSec / tickIntervalSec);
+
+  ctx.font = '9px monospace';
+  for (let i = 0; i <= numTicks; i++) {
+    const tSec = i * tickIntervalSec;
+    const ratio = tSec / totalDurationSec;
+    if (ratio > 1.0) continue;
+    const tx = ratio * w;
+
+    // Vertical tick guideline
+    ctx.strokeStyle = '#313244';
+    ctx.setLineDash([2, 2]);
+    ctx.beginPath();
+    ctx.moveTo(tx, 0);
+    ctx.lineTo(tx, h - 14);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Solid base notch
+    ctx.strokeStyle = '#585B70';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(tx, h - 14);
+    ctx.lineTo(tx, h - 9);
+    ctx.stroke();
+
+    // Time label
+    ctx.fillStyle = '#6C7086';
+    ctx.textAlign = tx < 25 ? 'left' : tx > w - 25 ? 'right' : 'center';
+    ctx.fillText(`${tSec.toFixed(2)}s`, tx, h - 3);
+  }
+
+  // Y-Scale Guides on far left
+  ctx.fillStyle = '#585B70';
+  ctx.textAlign = 'left';
+  ctx.fillText('+15', 3, midY - 26);
+  ctx.fillText('0', 3, midY + 3);
+  ctx.fillText('-15', 3, midY + 32);
 
   const step = w / (samples.length - 1);
   const scale = 2.2;
@@ -5531,46 +5710,5 @@ function clearPwaCacheAndReload() {
 }
 
   </script>
-  <!-- Hardware Telemetry & WPF IPC Integration -->
-  <script>
-    // Listen for Host telemetry and gesture events
-    if (window.chrome && window.chrome.webview) {
-      window.chrome.webview.addEventListener('message', event => {
-        const msg = event.data;
-        if (!msg) return;
-
-        if (msg.type === 'GESTURE_RECOGNIZED' && msg.word) {
-          if (typeof addWordToActiveMessage === 'function') addWordToActiveMessage(msg.word);
-          if (msg.autoSpeak && typeof speakCurrentText === 'function') speakCurrentText();
-        } else if (msg.type === 'PINCH_DETECTED') {
-          if (typeof speakCurrentText === 'function') speakCurrentText();
-        } else if (msg.type === 'BLE_STATE_CHANGED') {
-          const bleStatus = document.getElementById('gf-ble-status');
-          const bleDot = document.getElementById('gf-ble-dot');
-          const blePing = document.getElementById('gf-ble-ping');
-          if (bleStatus) bleStatus.innerText = msg.connected ? (msg.device || 'Movesense Connected') : 'Movesense Disconnected';
-          if (bleDot) bleDot.className = msg.connected ? 'relative inline-flex rounded-full h-2.5 w-2.5 bg-[#A6E3A1]' : 'relative inline-flex rounded-full h-2.5 w-2.5 bg-[#F38BA8]';
-          if (blePing) blePing.className = msg.connected ? 'animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A6E3A1] opacity-75' : 'hidden';
-        } else if (msg.type === 'VISION_STATE_CHANGED') {
-          const visionStatus = document.getElementById('gf-vision-status');
-          if (visionStatus) {
-            visionStatus.innerText = msg.active ? 'MediaPipe Active' : 'Camera Off';
-            visionStatus.className = msg.active ? 'text-[#A6E3A1] text-xs font-semibold' : 'text-[#BAC2DE] text-xs font-semibold';
-          }
-        }
-      });
-    }
-
-    // Notify Host when words or speech change
-    window.addEventListener('scooby:text-changed', (e) => {
-      if (window.chrome && window.chrome.webview) {
-        window.chrome.webview.postMessage({
-          type: 'GESTUREFLOW_TEXT_CHANGED',
-          text: e.detail ? e.detail.text : ''
-        });
-      }
-    });
-  </script>
-
 </body>
 </html>

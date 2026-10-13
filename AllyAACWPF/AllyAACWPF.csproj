@@ -24,4 +24,8 @@
     </None>
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\AllyAAC.Shared\AllyAAC.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
