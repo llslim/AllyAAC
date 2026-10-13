@@ -1469,17 +1469,17 @@ body {
       <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3 flex flex-col justify-between shadow-sm">
         <div class="flex items-center justify-between pb-1 border-b border-[#313244]/60">
           <span class="text-xs font-bold text-[#CDD6F4]">Inclinometer Gauges</span>
-          <span class="text-[10px] text-[#A6ADC8]">Forearm Gravitational Tilt</span>
+          <span class="text-[10px] text-[#A6ADC8]">Forearm Tilt & Lateral Sway</span>
         </div>
-        <div class="flex items-center justify-around py-2">
+        <div class="grid grid-cols-4 gap-1 py-2 text-center">
           <!-- Pitch Dial -->
           <div class="flex flex-col items-center gap-1">
             <div class="inclinometer-dial">
               <div id="dial-pitch-needle" class="inclinometer-needle" style="transform: rotate(0deg);"></div>
               <div class="inclinometer-center"></div>
             </div>
-            <span class="text-[10px] text-[#A6ADC8] font-bold">PITCH</span>
-            <span id="studio-pitch-val" class="text-sm font-black text-[#89B4FA] font-mono">0°</span>
+            <span class="text-[9px] text-[#A6ADC8] font-bold">PITCH</span>
+            <span id="studio-pitch-val" class="text-xs font-black text-[#89B4FA] font-mono">0°</span>
           </div>
 
           <!-- Roll Dial -->
@@ -1488,15 +1488,25 @@ body {
               <div id="dial-roll-needle" class="inclinometer-needle" style="transform: rotate(0deg); background: #CBA6F7;"></div>
               <div class="inclinometer-center"></div>
             </div>
-            <span class="text-[10px] text-[#A6ADC8] font-bold">ROLL</span>
-            <span id="studio-roll-val" class="text-sm font-black text-[#CBA6F7] font-mono">0°</span>
+            <span class="text-[9px] text-[#A6ADC8] font-bold">ROLL</span>
+            <span id="studio-roll-val" class="text-xs font-black text-[#CBA6F7] font-mono">0°</span>
+          </div>
+
+          <!-- Sway Dial (Lateral Deviation) -->
+          <div class="flex flex-col items-center gap-1">
+            <div class="inclinometer-dial">
+              <div id="dial-sway-needle" class="inclinometer-needle" style="transform: rotate(0deg); background: #A6E3A1;"></div>
+              <div class="inclinometer-center"></div>
+            </div>
+            <span class="text-[9px] text-[#A6ADC8] font-bold" title="Lateral Dynamic Sway Acceleration (Ay isolated from gravity)">SWAY</span>
+            <span id="studio-sway-val" class="text-xs font-black text-[#A6E3A1] font-mono">0.0</span>
           </div>
 
           <!-- Magnitude -->
           <div class="flex flex-col items-center justify-center">
-            <span class="text-[10px] text-[#A6ADC8] font-bold">MAGNITUDE</span>
-            <span id="studio-mag-val" class="text-xl font-black text-[#A6E3A1] font-mono">9.8</span>
-            <span class="text-[9px] text-[#6C7086]">m/s² (1.0G)</span>
+            <span class="text-[9px] text-[#A6ADC8] font-bold">MAG</span>
+            <span id="studio-mag-val" class="text-base font-black text-[#A6E3A1] font-mono">9.8</span>
+            <span class="text-[8px] text-[#6C7086]">m/s²</span>
           </div>
         </div>
       </div>
@@ -1700,6 +1710,7 @@ body {
               <span class="text-[#FAB387]">|M|: <b id="sync-imu-mag">9.8</b></span>
               <span class="text-[#CBA6F7]">Pitch: <b id="sync-imu-pitch">0°</b></span>
               <span class="text-[#F9E2AF]">Roll: <b id="sync-imu-roll">0°</b></span>
+              <span class="text-[#A6E3A1]" title="Dynamic Lateral Sway">Sway: <b id="sync-imu-sway">0.0</b></span>
             </div>
           </div>
 
@@ -3914,16 +3925,32 @@ function updateStudioVisuals(accel, tilt, detected) {
   if (rollEl) rollEl.textContent = Math.round(tilt.roll) + '°';
   if (magEl) magEl.textContent = accel.mag.toFixed(1);
 
+  // Calculate Lateral Dynamic Sway (Ay isolated from static gravitational tilt)
+  // Gravity component on lateral axis = 9.8 * sin(roll)
+  const rollRad = (tilt.roll * Math.PI) / 180;
+  const gravityAy = 9.8 * Math.sin(rollRad);
+  const dynamicSway = accel.y - gravityAy; // m/s² lateral deviation
+
   // Update Inclinometer Dial Needles
   const pitchNeedle = document.getElementById('dial-pitch-needle');
   const rollNeedle = document.getElementById('dial-roll-needle');
+  const swayNeedle = document.getElementById('dial-sway-needle');
+  const swayValEl = document.getElementById('studio-sway-val');
+
   if (pitchNeedle) pitchNeedle.style.transform = `rotate(${Math.round(tilt.pitch)}deg)`;
   if (rollNeedle) rollNeedle.style.transform = `rotate(${Math.round(tilt.roll)}deg)`;
+  if (swayNeedle) {
+    // Map dynamic sway (-10 to +10 m/s²) to needle rotation (-90° to +90°)
+    const swayAngle = Math.max(-90, Math.min(90, Math.round(dynamicSway * 9)));
+    swayNeedle.style.transform = `rotate(${swayAngle}deg)`;
+  }
+  if (swayValEl) swayValEl.textContent = dynamicSway.toFixed(1);
 
   // Push to waveform history
   studioHistory.push({
     x: accel.x, y: accel.y, z: accel.z, mag: accel.mag,
     pitch: tilt.pitch, roll: tilt.roll,
+    sway: dynamicSway,
     time: performance.now()
   });
   if (studioHistory.length > MAX_STUDIO_HISTORY) studioHistory.shift();
@@ -3932,10 +3959,11 @@ function updateStudioVisuals(accel, tilt, detected) {
     studioRecordSession.push({
       accel: { ...accel },
       tilt: { ...tilt },
+      sway: dynamicSway,
       timestamp: Date.now()
     });
     if (typeof recordVideoSyncSample === 'function') {
-      recordVideoSyncSample(accel, tilt);
+      recordVideoSyncSample(accel, tilt, dynamicSway);
     }
     const sampleRateEl = document.getElementById('studio-sample-rate');
     if (sampleRateEl) sampleRateEl.textContent = studioRecordSession.length + ' Recorded';
@@ -3949,12 +3977,14 @@ function updateStudioVisuals(accel, tilt, detected) {
     const syncMagEl = document.getElementById('sync-imu-mag');
     const syncPitchEl = document.getElementById('sync-imu-pitch');
     const syncRollEl = document.getElementById('sync-imu-roll');
+    const syncSwayEl = document.getElementById('sync-imu-sway');
     if (axEl) axEl.textContent = accel.x.toFixed(1);
     if (ayEl) ayEl.textContent = accel.y.toFixed(1);
     if (azEl) azEl.textContent = accel.z.toFixed(1);
     if (syncMagEl) syncMagEl.textContent = accel.mag.toFixed(1);
     if (syncPitchEl) syncPitchEl.textContent = Math.round(tilt.pitch) + '°';
     if (syncRollEl) syncRollEl.textContent = Math.round(tilt.roll) + '°';
+    if (syncSwayEl) syncSwayEl.textContent = dynamicSway.toFixed(1);
   }
 
   // Draw Waveform Canvas
@@ -5055,7 +5085,7 @@ async function startVideoSyncRecording() {
   }
 }
 
-function recordVideoSyncSample(accel, tilt) {
+function recordVideoSyncSample(accel, tilt, dynamicSway = 0) {
   if (!videoSyncState.isRecording || !videoSyncState.activeSession) return;
   const t_ms = Math.round(performance.now() - videoSyncState.activeSession.startTime);
   const sample = {
@@ -5066,7 +5096,8 @@ function recordVideoSyncSample(accel, tilt) {
     az: +accel.z.toFixed(2),
     mag: +accel.mag.toFixed(2),
     pitch: +tilt.pitch.toFixed(1),
-    roll: +tilt.roll.toFixed(1)
+    roll: +tilt.roll.toFixed(1),
+    sway: +dynamicSway.toFixed(2)
   };
   videoSyncState.activeSession.imuSamples.push(sample);
 
@@ -5377,6 +5408,7 @@ function updateTelemetryHudAtTime(targetSec) {
   const magEl = document.getElementById('sync-imu-mag');
   const pitchEl = document.getElementById('sync-imu-pitch');
   const rollEl = document.getElementById('sync-imu-roll');
+  const swayEl = document.getElementById('sync-imu-sway');
 
   if (axEl) axEl.textContent = closest.ax.toFixed(1);
   if (ayEl) ayEl.textContent = closest.ay.toFixed(1);
@@ -5384,6 +5416,10 @@ function updateTelemetryHudAtTime(targetSec) {
   if (magEl) magEl.textContent = closest.mag.toFixed(1);
   if (pitchEl) pitchEl.textContent = Math.round(closest.pitch) + '°';
   if (rollEl) rollEl.textContent = Math.round(closest.roll) + '°';
+  if (swayEl) {
+    const swayVal = closest.sway !== undefined ? closest.sway : (closest.ay - 9.8 * Math.sin((closest.roll * Math.PI) / 180));
+    swayEl.textContent = swayVal.toFixed(1);
+  }
 }
 
 function setCandidateBoundaryStart() {
