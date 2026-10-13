@@ -1610,21 +1610,34 @@ body {
         <!-- Video Player Viewport (Cols 1-5 on desktop) -->
         <div class="lg:col-span-5 flex flex-col gap-2 bg-[#181825] p-2.5 rounded-xl border border-[#313244]">
           <div class="flex items-center justify-between text-[11px] font-bold text-[#A6ADC8]">
-            <span class="flex items-center gap-1">
-              <span class="w-2 h-2 rounded-full bg-[#A6E3A1]"></span>
+            <span class="flex items-center gap-1.5">
+              <span id="sync-video-live-dot" class="w-2 h-2 rounded-full bg-[#A6E3A1]"></span>
               <span id="sync-video-source-label">Camera Video Feed</span>
             </span>
-            <span id="sync-video-status-badge" class="px-1.5 py-0.5 rounded text-[10px] bg-[#89B4FA]/10 text-[#89B4FA] border border-[#89B4FA]/30 font-mono">Aligned</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="toggleAnnotatorLiveCamera()" id="btn-annotator-live-cam" class="px-2 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] text-[10px] font-bold transition active:scale-95 flex items-center gap-1" title="Toggle Live Camera Feed in Annotator">
+                <span>📹</span> <span id="annotator-cam-btn-label">Live Cam</span>
+              </button>
+              <span id="sync-video-status-badge" class="px-1.5 py-0.5 rounded text-[10px] bg-[#89B4FA]/10 text-[#89B4FA] border border-[#89B4FA]/30 font-mono">Aligned</span>
+            </div>
           </div>
 
           <!-- Video / Synthetic Canvas Container -->
           <div class="relative w-full aspect-video bg-[#11111B] rounded-lg overflow-hidden border border-[#313244] flex items-center justify-center">
-            <video id="scrubber-sync-video" playsinline class="w-full h-full object-contain"></video>
+            <video id="scrubber-sync-video" playsinline muted class="w-full h-full object-contain"></video>
             <canvas id="scrubber-synthetic-video-canvas" width="480" height="270" class="w-full h-full object-contain hidden"></canvas>
             <!-- Placeholder when no recording yet -->
-            <div id="sync-video-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-[#11111B]/90 text-[#6C7086] text-xs">
-              <span class="text-2xl mb-1">📹</span>
-              <span>Record a gesture or simulate input to inspect synchronized video and telemetry</span>
+            <div id="sync-video-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-center p-4 bg-[#11111B]/90 text-[#A6ADC8] text-xs gap-2">
+              <span class="text-2xl">📹</span>
+              <span>Record a gesture or turn on the live camera feed to inspect synchronized video and telemetry</span>
+              <div class="flex items-center gap-2 mt-1">
+                <button onclick="toggleAnnotatorLiveCamera()" class="px-3 py-1.5 bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] font-bold rounded-lg text-xs transition active:scale-95 shadow-sm">
+                  📹 Turn On Camera
+                </button>
+                <button onclick="switchStudioSubTab('oscilloscope'); startStudioRecordingWizard();" class="px-3 py-1.5 bg-[#F38BA8] hover:bg-[#E78284] text-[#11111B] font-bold rounded-lg text-xs transition active:scale-95 shadow-sm">
+                  ⏺ Record Gesture
+                </button>
+              </div>
             </div>
           </div>
 
@@ -3024,7 +3037,7 @@ function onMediaPipeFrameReceived(landmarks) {
   }
 }
 
-function toggleVisionTracking() {
+async function toggleVisionTracking() {
   visionState.isStreaming = !visionState.isStreaming;
   const dot = document.getElementById('header-vision-dot');
   const text = document.getElementById('header-vision-text');
@@ -3036,6 +3049,27 @@ function toggleVisionTracking() {
     if (text) {
       text.textContent = '👁️ Vision (Active)';
       text.className = 'text-[#A6E3A1] text-xs font-bold hidden sm:inline';
+    }
+    if (typeof requestCameraStream === 'function') {
+      const stream = await requestCameraStream();
+      if (stream) {
+        const previewVideo = document.getElementById('studio-camera-preview');
+        if (previewVideo) {
+          previewVideo.srcObject = stream;
+          previewVideo.classList.remove('hidden');
+          previewVideo.play().catch(() => {});
+        }
+        const annotatorVideo = document.getElementById('scrubber-sync-video');
+        const emptyState = document.getElementById('sync-video-empty-state');
+        if (annotatorVideo && (!annotatorVideo.src || annotatorVideo.classList.contains('hidden'))) {
+          if (emptyState) emptyState.classList.add('hidden');
+          annotatorVideo.classList.remove('hidden');
+          annotatorVideo.srcObject = stream;
+          annotatorVideo.muted = true;
+          annotatorVideo.play().catch(() => {});
+          if (typeof syncAnnotatorLiveCameraUI === 'function') syncAnnotatorLiveCameraUI(true);
+        }
+      }
     }
     if (typeof showToastNotification === 'function') {
       showToastNotification('👁️ Optical Hand Tracking Active (30 FPS)');
@@ -3502,6 +3536,9 @@ function selectStudioSource(source) {
     }
     if (btnMovesense) {
       btnMovesense.className = 'px-2.5 py-1 rounded-lg text-xs font-semibold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1.5';
+    }
+    if (typeof toggleAnnotatorLiveCamera === 'function' && (!videoSyncState || !videoSyncState.cameraActive)) {
+      toggleAnnotatorLiveCamera();
     }
   }
 }
@@ -4516,9 +4553,88 @@ async function toggleCameraPreviewFeed() {
   if (stream && previewVideo) {
     previewVideo.srcObject = stream;
     previewVideo.classList.remove('hidden');
+    previewVideo.play().catch(() => {});
     if (btn) btn.className = 'text-[10px] px-1.5 py-0.5 rounded bg-[#A6E3A1] text-[#11111B] font-bold transition active:scale-95';
+    syncAnnotatorLiveCameraUI(true);
   } else if (typeof showToastNotification === 'function') {
     showToastNotification('Camera unavailable: Optical simulation active');
+  }
+}
+
+async function toggleAnnotatorLiveCamera() {
+  const videoEl = document.getElementById('scrubber-sync-video');
+  const syntheticCanvas = document.getElementById('scrubber-synthetic-video-canvas');
+  const emptyState = document.getElementById('sync-video-empty-state');
+  const badge = document.getElementById('sync-video-status-badge');
+
+  // If currently showing live stream in Annotator, toggle back to recorded/synthetic view or stop
+  if (videoEl && videoEl.srcObject) {
+    videoEl.srcObject = null;
+    syncAnnotatorLiveCameraUI(false);
+    if (videoSyncState.activeSession) {
+      loadSessionIntoSyncScrubber(videoSyncState.activeSession);
+    } else if (emptyState) {
+      emptyState.classList.remove('hidden');
+    }
+    return;
+  }
+
+  const stream = await requestCameraStream();
+  if (stream && videoEl) {
+    if (emptyState) emptyState.classList.add('hidden');
+    if (syntheticCanvas) syntheticCanvas.classList.add('hidden');
+    videoEl.classList.remove('hidden');
+    videoEl.removeAttribute('src');
+    videoEl.srcObject = stream;
+    videoEl.muted = true;
+    videoEl.play().catch(err => console.warn('[VideoSync] Live video play error:', err));
+
+    // Also attach to Oscilloscope preview if present
+    const previewVideo = document.getElementById('studio-camera-preview');
+    if (previewVideo) {
+      previewVideo.srcObject = stream;
+      previewVideo.classList.remove('hidden');
+      previewVideo.play().catch(() => {});
+    }
+
+    syncAnnotatorLiveCameraUI(true);
+    if (badge) {
+      badge.textContent = 'Live Camera (30 FPS)';
+      badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-[#A6E3A1]/20 text-[#A6E3A1] border border-[#A6E3A1]/40 font-mono';
+    }
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('📹 Live Camera Feed Active in Annotator');
+    }
+  } else {
+    // Fallback to synthetic visual canvas if no physical camera is available
+    if (emptyState) emptyState.classList.add('hidden');
+    if (videoEl) videoEl.classList.add('hidden');
+    if (syntheticCanvas) syntheticCanvas.classList.remove('hidden');
+    renderSyntheticVideoFrame(0);
+    if (badge) {
+      badge.textContent = 'Synthetic Optical Sim';
+      badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-[#FAB387]/10 text-[#FAB387] border border-[#FAB387]/30 font-mono';
+    }
+    if (typeof showToastNotification === 'function') {
+      showToastNotification('No physical camera detected: Showing Synthetic Visualizer');
+    }
+  }
+}
+
+function syncAnnotatorLiveCameraUI(isLive) {
+  const btn = document.getElementById('btn-annotator-live-cam');
+  const label = document.getElementById('annotator-cam-btn-label');
+  const dot = document.getElementById('sync-video-live-dot');
+  if (btn) {
+    btn.className = isLive
+      ? 'px-2 py-0.5 rounded bg-[#A6E3A1] text-[#11111B] text-[10px] font-bold transition active:scale-95 flex items-center gap-1 shadow-sm'
+      : 'px-2 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] text-[10px] font-bold transition active:scale-95 flex items-center gap-1';
+  }
+  if (label) {
+    label.textContent = isLive ? 'Live On' : 'Live Cam';
+  }
+  if (dot) {
+    dot.className = isLive ? 'w-2 h-2 rounded-full bg-[#A6E3A1] animate-ping' : 'w-2 h-2 rounded-full bg-[#A6E3A1]';
   }
 }
 
@@ -4660,6 +4776,8 @@ function loadSessionIntoSyncScrubber(session) {
   if (totalTimeEl) totalTimeEl.textContent = durationSec.toFixed(2) + 's';
 
   if (session.videoUrl && videoEl) {
+    videoEl.srcObject = null;
+    syncAnnotatorLiveCameraUI(false);
     videoEl.classList.remove('hidden');
     if (syntheticCanvas) syntheticCanvas.classList.add('hidden');
     videoEl.src = session.videoUrl;
@@ -4667,6 +4785,19 @@ function loadSessionIntoSyncScrubber(session) {
     if (badge) {
       badge.textContent = 'Aligned (Video + IMU)';
       badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-[#A6E3A1]/10 text-[#A6E3A1] border border-[#A6E3A1]/30 font-mono';
+    }
+  } else if (videoSyncState.stream && videoEl) {
+    // If live camera stream is active (or was turned on), display live camera feed in Annotator
+    videoEl.classList.remove('hidden');
+    if (syntheticCanvas) syntheticCanvas.classList.add('hidden');
+    videoEl.removeAttribute('src');
+    videoEl.srcObject = videoSyncState.stream;
+    videoEl.muted = true;
+    videoEl.play().catch(() => {});
+    syncAnnotatorLiveCameraUI(true);
+    if (badge) {
+      badge.textContent = 'Live Camera + IMU';
+      badge.className = 'px-1.5 py-0.5 rounded text-[10px] bg-[#A6E3A1]/20 text-[#A6E3A1] border border-[#A6E3A1]/40 font-mono';
     }
   } else {
     // Generate synthetic motion visualizer for environments without camera video
