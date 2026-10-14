@@ -1465,15 +1465,21 @@ body {
 
     <!-- Instruments & Live Classification Match Cards -->
     <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-      <!-- Tilt Inclinometer Instrument -->
+      <!-- Tilt Inclinometer & 3D Reach Distance Instrument -->
       <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3 flex flex-col justify-between shadow-sm">
         <div class="flex items-center justify-between pb-1 border-b border-[#313244]/60">
-          <span class="text-xs font-bold text-[#CDD6F4]">Inclinometer Gauges</span>
-          <span class="text-[10px] text-[#A6ADC8]">Forearm Tilt & Lateral Sway</span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-xs font-bold text-[#CDD6F4]">Inclinometer & 3D Reach</span>
+          </div>
+          <div class="flex items-center gap-1">
+            <button onclick="autoCalibrateArmLength()" id="btn-auto-cal-arm" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#89B4FA] font-bold transition active:scale-95" title="Auto-measure arm length from camera keypoints (or reset baseline to lap)">📐 Calibrate</button>
+            <button onclick="resetReachBaseline()" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95" title="Set current arm position as Lap / Rest baseline">Set Lap</button>
+          </div>
         </div>
-        <div class="grid grid-cols-4 gap-1 py-2 text-center">
+        <!-- 4-Gauge Needles Strip -->
+        <div class="grid grid-cols-4 gap-1 py-1.5 text-center">
           <!-- Pitch Dial -->
-          <div class="flex flex-col items-center gap-1">
+          <div class="flex flex-col items-center gap-0.5">
             <div class="inclinometer-dial">
               <div id="dial-pitch-needle" class="inclinometer-needle" style="transform: rotate(0deg);"></div>
               <div class="inclinometer-center"></div>
@@ -1483,7 +1489,7 @@ body {
           </div>
 
           <!-- Roll Dial -->
-          <div class="flex flex-col items-center gap-1">
+          <div class="flex flex-col items-center gap-0.5">
             <div class="inclinometer-dial">
               <div id="dial-roll-needle" class="inclinometer-needle" style="transform: rotate(0deg); background: #CBA6F7;"></div>
               <div class="inclinometer-center"></div>
@@ -1493,20 +1499,39 @@ body {
           </div>
 
           <!-- Sway Dial (Lateral Deviation) -->
-          <div class="flex flex-col items-center gap-1">
+          <div class="flex flex-col items-center gap-0.5">
             <div class="inclinometer-dial">
               <div id="dial-sway-needle" class="inclinometer-needle" style="transform: rotate(0deg); background: #A6E3A1;"></div>
               <div class="inclinometer-center"></div>
             </div>
-            <span class="text-[9px] text-[#A6ADC8] font-bold" title="Lateral Dynamic Sway Acceleration (Ay isolated from gravity)">SWAY</span>
+            <span class="text-[9px] text-[#A6ADC8] font-bold" title="Lateral Dynamic Sway">SWAY</span>
             <span id="studio-sway-val" class="text-xs font-black text-[#A6E3A1] font-mono">0.0</span>
           </div>
 
           <!-- Magnitude -->
           <div class="flex flex-col items-center justify-center">
             <span class="text-[9px] text-[#A6ADC8] font-bold">MAG</span>
-            <span id="studio-mag-val" class="text-base font-black text-[#A6E3A1] font-mono">9.8</span>
+            <span id="studio-mag-val" class="text-sm font-black text-[#FAB387] font-mono">9.8</span>
             <span class="text-[8px] text-[#6C7086]">m/s²</span>
+          </div>
+        </div>
+
+        <!-- 3D Reach Travel Metrics Bar (Vertical, Horizontal, 3D Diagonal) -->
+        <div class="pt-1.5 border-t border-[#313244]/60 grid grid-cols-3 gap-1 text-[10px] font-mono bg-[#181825]/60 p-1.5 rounded-lg">
+          <div class="flex flex-col items-center text-center">
+            <span class="text-[9px] text-[#89B4FA] font-bold">↕ VERTICAL</span>
+            <span id="val-reach-vertical" class="text-xs font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-vertical-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+          </div>
+          <div class="flex flex-col items-center text-center border-x border-[#313244]">
+            <span class="text-[9px] text-[#A6E3A1] font-bold">↔ HORIZ</span>
+            <span id="val-reach-horizontal" class="text-xs font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-horizontal-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+          </div>
+          <div class="flex flex-col items-center text-center">
+            <span class="text-[9px] text-[#CBA6F7] font-bold" title="Total 3D Euclidean Linear Vector Reach from Lap">↗ 3D VECTOR</span>
+            <span id="val-reach-diagonal" class="text-xs font-black text-[#CBA6F7]">0.0 cm</span>
+            <span id="val-reach-diagonal-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
           </div>
         </div>
       </div>
@@ -3690,6 +3715,91 @@ let activeStudioSubTab = 'oscilloscope';
 let continuousSimTimer = null;
 let annotatedSegment = { startRatio: 0.25, endRatio: 0.65, data: [] };
 
+// 3D Reach & Travel Distance State
+let reachState = {
+  armLengthCm: 65.0, // Default adult arm length from shoulder to wrist (cm)
+  baselinePitch: -30.0, // Default lap resting pitch angle (degrees)
+  baselineRoll: 0.0,   // Default lap resting roll angle (degrees)
+  maxVerticalCm: 0.0,
+  maxHorizCm: 0.0,
+  maxDiagonalCm: 0.0
+};
+
+function autoCalibrateArmLength() {
+  // If camera vision landmarks exist (Shoulder = 11/12, Wrist = 15/16)
+  if (typeof visionState !== 'undefined' && visionState.landmarks && visionState.landmarks.length >= 17) {
+    const shoulder = visionState.landmarks[12] || visionState.landmarks[11];
+    const wrist = visionState.landmarks[16] || visionState.landmarks[15];
+    if (shoulder && wrist) {
+      // In normalized coordinates (0..1)
+      const dx = wrist.x - shoulder.x;
+      const dy = wrist.y - shoulder.y;
+      const pixelDist = Math.sqrt(dx * dx + dy * dy);
+
+      // Assume typical 640x480 webcam focal depth @ 0.7m viewing distance yields ~0.35 normalized height for a 65cm arm
+      const estimatedArmCm = Math.max(35, Math.min(95, Math.round((pixelDist / 0.45) * 65)));
+      reachState.armLengthCm = estimatedArmCm;
+      showGestureHUD(`Auto-Calibrated Arm Length: ${reachState.armLengthCm} cm (${(reachState.armLengthCm / 2.54).toFixed(1)} in)`, 1.2);
+      return;
+    }
+  }
+
+  // Fallback calibration: Set current sensor pitch as lap baseline
+  const curPitch = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].pitch : -30;
+  reachState.baselinePitch = curPitch;
+  showGestureHUD(`Lap Baseline Calibrated: Pitch ${Math.round(curPitch)}° • Arm: ${reachState.armLengthCm} cm`, 1.2);
+}
+
+function resetReachBaseline() {
+  const curPitch = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].pitch : -30;
+  const curRoll = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].roll : 0;
+  reachState.baselinePitch = curPitch;
+  reachState.baselineRoll = curRoll;
+  reachState.maxVerticalCm = 0.0;
+  reachState.maxHorizCm = 0.0;
+  reachState.maxDiagonalCm = 0.0;
+  showGestureHUD(`Lap Baseline Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.0);
+}
+
+function updateReachCalculations(pitch, roll) {
+  const L = reachState.armLengthCm;
+  const radBasePitch = (reachState.baselinePitch * Math.PI) / 180;
+  const radCurPitch = (pitch * Math.PI) / 180;
+  const radBaseRoll = (reachState.baselineRoll * Math.PI) / 180;
+  const radCurRoll = (roll * Math.PI) / 180;
+
+  // 1. Vertical Travel (Height gained from Lap to Overhead): Δh = L * (sin(Pitch) - sin(Pitch_base))
+  const verticalCm = Math.max(0, L * (Math.sin(radCurPitch) - Math.sin(radBasePitch)));
+
+  // 2. Horizontal Forward/Lateral Travel: Δx = L * |cos(Pitch) - cos(Pitch_base)|, Δy = L * |sin(Roll) - sin(Roll_base)|
+  const forwardCm = L * Math.abs(Math.cos(radCurPitch) - Math.cos(radBasePitch));
+  const lateralCm = L * Math.abs(Math.sin(radCurRoll) - Math.sin(radBaseRoll));
+  const horizCm = Math.sqrt(forwardCm * forwardCm + lateralCm * lateralCm);
+
+  // 3. 3D Diagonal Vector Distance (Straight-line 3D displacement from Lap):
+  const diagonalCm = Math.sqrt(verticalCm * verticalCm + horizCm * horizCm);
+
+  // Track session maximums
+  if (verticalCm > reachState.maxVerticalCm) reachState.maxVerticalCm = verticalCm;
+  if (horizCm > reachState.maxHorizCm) reachState.maxHorizCm = horizCm;
+  if (diagonalCm > reachState.maxDiagonalCm) reachState.maxDiagonalCm = diagonalCm;
+
+  // Update DOM readouts
+  const vertEl = document.getElementById('val-reach-vertical');
+  const vertInEl = document.getElementById('val-reach-vertical-in');
+  const horizEl = document.getElementById('val-reach-horizontal');
+  const horizInEl = document.getElementById('val-reach-horizontal-in');
+  const diagEl = document.getElementById('val-reach-diagonal');
+  const diagInEl = document.getElementById('val-reach-diagonal-in');
+
+  if (vertEl) vertEl.textContent = verticalCm.toFixed(1) + ' cm';
+  if (vertInEl) vertInEl.textContent = `(${(verticalCm / 2.54).toFixed(1)} in)`;
+  if (horizEl) horizEl.textContent = horizCm.toFixed(1) + ' cm';
+  if (horizInEl) horizInEl.textContent = `(${(horizCm / 2.54).toFixed(1)} in)`;
+  if (diagEl) diagEl.textContent = diagonalCm.toFixed(1) + ' cm';
+  if (diagInEl) diagInEl.textContent = `(${(diagonalCm / 2.54).toFixed(1)} in)`;
+}
+
 function initGestureStudio() {
   renderGestureCatalogList();
   updateStudioThresholdSliders();
@@ -3943,8 +4053,9 @@ function updateStudioVisuals(accel, tilt, detected) {
     // Map dynamic sway (-10 to +10 m/s²) to needle rotation (-90° to +90°)
     const swayAngle = Math.max(-90, Math.min(90, Math.round(dynamicSway * 9)));
     swayNeedle.style.transform = `rotate(${swayAngle}deg)`;
-  }
   if (swayValEl) swayValEl.textContent = dynamicSway.toFixed(1);
+  // Update 3D Reach Travel Distances (Vertical, Horizontal, 3D Vector)
+  updateReachCalculations(tilt.pitch, tilt.roll);
 
   // Push to waveform history
   studioHistory.push({

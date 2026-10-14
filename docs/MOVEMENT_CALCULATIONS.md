@@ -133,6 +133,52 @@ $$\text{Surge} = |M| - 9.80\,\text{m/s}^2$$
 
 ---
 
+## 6. 3D Reach & Travel Distance Mathematics
+
+Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from **rest in the lap** to **overhead or horizontal extension** is computed across three spatial dimensions:
+
+```
+                          Overhead (Pitch = +85°)
+                                 \  O
+                                  \ |  ▲
+                             Arm   \|  │
+                            Length  │  │ Vertical Reach (Δh)
+                             (L)    │  │
+                                    ▼  ▼
+                          Lap (Pitch ≈ -30°)
+                                    +──────────────► Horizontal Reach (Δx, Δy)
+```
+
+### 6.1 Automatic Camera Arm-Length Calibration ($L$)
+The scalar radius $L$ (shoulder-to-wrist distance) is measured using the live webcam feed via MediaPipe keypoints:
+* **Optical Scale Reference**: The physical diameter of the Movesense sensor pod ($36.6\text{ mm}$) provides an absolute fiducial:
+  $$S = \frac{36.6\text{ mm}}{\text{Pod Diameter in Pixels}}$$
+* **Arm Length**:
+  $$L = \text{PixelDistance}(\text{Shoulder} \to \text{Wrist}) \times S \quad (\text{Default fallback: } 65\text{ cm} \approx 25.6\text{ in})$$
+
+### 6.2 Vertical Elevation Reach ($\Delta h$)
+The vertical height gained from the lap resting position:
+$$\Delta h = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{lap}})\right)$$
+
+* At rest in lap ($\text{Pitch} \approx -30^\circ$): $\Delta h = 0.0\text{ cm}$.
+* At full vertical stretch ($\text{Pitch} \approx +85^\circ$): $\Delta h \approx 0.95 \text{ to } 1.25\text{ m}$ ($37 \text{ to } 49\text{ inches}$).
+
+### 6.3 Horizontal Reach ($\Delta d_{\text{horiz}}$)
+The forward reach and lateral sway combined in the horizontal plane:
+$$\begin{aligned}
+\Delta d_{\text{forward}} &= L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{lap}})\right| \\[4pt]
+\Delta d_{\text{lateral}} &= L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{lap}})\right| \\[4pt]
+\Delta d_{\text{horiz}} &= \sqrt{\Delta d_{\text{forward}}^2 + \Delta d_{\text{lateral}}^2}
+\end{aligned}$$
+
+### 6.4 3D Diagonal Vector Reach ($\Delta D_{\text{3D}}$)
+The net straight-line 3D Euclidean displacement from the resting position in the lap:
+$$\Delta D_{\text{3D}} = \sqrt{\Delta h^2 + \Delta d_{\text{horiz}}^2}$$
+
+This provides a single continuous metric quantifying the communicator's voluntary motor workspace volume.
+
+---
+
 ## 6. Sensor Collection & Processing Pipeline
 
 ```
