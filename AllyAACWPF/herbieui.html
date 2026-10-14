@@ -1516,37 +1516,57 @@ body {
           </div>
         </div>
 
-        <!-- 3D Reach Travel Metrics Bar (Upward, Downward, Forward, Backward, Lateral, 3D Vector) -->
-        <div class="pt-1.5 border-t border-[#313244]/60 grid grid-cols-3 sm:grid-cols-6 gap-1 text-[10px] font-mono bg-[#181825]/60 p-1.5 rounded-lg">
-          <div class="flex flex-col items-center text-center">
-            <span class="text-[8px] text-[#89B4FA] font-bold" title="Upward Height Elevation from Rest Position">⬆ UPWARD</span>
-            <span id="val-reach-upward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-upward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+        <!-- 3D Reach Travel Metrics Bar (Upward, Downward, Forward, Backward, Left, Right, 3D Vector) -->
+        <div class="pt-1.5 border-t border-[#313244]/60 flex flex-col gap-1 text-[10px] font-mono bg-[#181825]/60 p-1.5 rounded-lg">
+          <div class="grid grid-cols-3 gap-1">
+            <!-- Upward -->
+            <div class="flex flex-col items-center text-center">
+              <span class="text-[8px] text-[#89B4FA] font-bold" title="Upward Height Elevation from Rest Position">⬆ UPWARD</span>
+              <span id="val-reach-upward" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-upward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
+            <!-- Forward -->
+            <div class="flex flex-col items-center text-center border-l border-[#313244]">
+              <span class="text-[8px] text-[#A6E3A1] font-bold" title="Forward Reaching Extension from Rest Position">➡ FORWARD</span>
+              <span id="val-reach-forward" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-forward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
+            <!-- Left -->
+            <div class="flex flex-col items-center text-center border-l border-[#313244]">
+              <span class="text-[8px] text-[#FAB387] font-bold" title="Left Lateral Reach & Sway from Rest Position">◀ LEFT</span>
+              <span id="val-reach-left" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-left-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
           </div>
-          <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#89DCEB] font-bold" title="Downward Height Drop from Rest Position">⬇ DOWNWARD</span>
-            <span id="val-reach-downward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-downward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+
+          <div class="grid grid-cols-3 gap-1 pt-1 border-t border-[#313244]/40">
+            <!-- Downward -->
+            <div class="flex flex-col items-center text-center">
+              <span class="text-[8px] text-[#89DCEB] font-bold" title="Downward Height Drop from Rest Position">⬇ DOWNWARD</span>
+              <span id="val-reach-downward" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-downward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
+            <!-- Backward -->
+            <div class="flex flex-col items-center text-center border-l border-[#313244]">
+              <span class="text-[8px] text-[#F9E2AF] font-bold" title="Backward Retraction from Rest Position">⬅ BACKWARD</span>
+              <span id="val-reach-backward" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-backward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
+            <!-- Right -->
+            <div class="flex flex-col items-center text-center border-l border-[#313244]">
+              <span class="text-[8px] text-[#F5C2E7] font-bold" title="Right Lateral Reach & Sway from Rest Position">▶ RIGHT</span>
+              <span id="val-reach-right" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+              <span id="val-reach-right-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
           </div>
-          <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#A6E3A1] font-bold" title="Forward Reaching Extension from Rest Position">➡ FORWARD</span>
-            <span id="val-reach-forward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-forward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
-          </div>
-          <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#F9E2AF] font-bold" title="Backward Retraction from Rest Position">⬅ BACKWARD</span>
-            <span id="val-reach-backward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-backward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
-          </div>
-          <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#FAB387] font-bold" title="Left / Right Lateral Reach & Sway">↔ LATERAL</span>
-            <span id="val-reach-lateral" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-lateral-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
-          </div>
-          <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#CBA6F7] font-bold" title="Total 3D Euclidean Spatial Vector Reach from Rest Position">↗ 3D VECTOR</span>
-            <span id="val-reach-diagonal" class="text-[10px] sm:text-[11px] font-black text-[#CBA6F7]">0.0 cm</span>
-            <span id="val-reach-diagonal-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+
+          <!-- 3D Vector Highlight Footer Strip -->
+          <div class="flex items-center justify-between px-2 pt-1 border-t border-[#313244]/60 text-[9px]">
+            <span class="text-[#CBA6F7] font-bold flex items-center gap-1" title="Total 3D Euclidean Spatial Vector Reach from Rest Position">↗ 3D SPATIAL VECTOR:</span>
+            <div class="flex items-center gap-1.5 font-bold font-mono">
+              <span id="val-reach-diagonal" class="text-xs text-[#CBA6F7]">0.0 cm</span>
+              <span id="val-reach-diagonal-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            </div>
           </div>
         </div>
       </div>
@@ -3739,7 +3759,8 @@ let reachState = {
   maxDownwardCm: 0.0,
   maxForwardCm: 0.0,
   maxBackwardCm: 0.0,
-  maxLateralCm: 0.0,
+  maxLeftCm: 0.0,
+  maxRightCm: 0.0,
   maxDiagonalCm: 0.0
 };
 
@@ -3852,7 +3873,8 @@ function resetReachBaseline() {
   reachState.maxDownwardCm = 0.0;
   reachState.maxForwardCm = 0.0;
   reachState.maxBackwardCm = 0.0;
-  reachState.maxLateralCm = 0.0;
+  reachState.maxLeftCm = 0.0;
+  reachState.maxRightCm = 0.0;
   reachState.maxDiagonalCm = 0.0;
   showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.2);
 }
@@ -3874,18 +3896,21 @@ function updateReachCalculations(pitch, roll) {
   const forwardCm = deltaX > 0 ? deltaX : 0.0;
   const backwardCm = deltaX < 0 ? Math.abs(deltaX) : 0.0;
 
-  // 3. Lateral displacement (Y axis: left/right side reach and dynamic sway)
-  const lateralCm = L * Math.abs(Math.sin(radCurRoll) - Math.sin(radBaseRoll));
+  // 3. Left / Right signed displacement (Y axis: lateral sweep from rest)
+  const deltaY = L * (Math.sin(radCurRoll) - Math.sin(radBaseRoll));
+  const rightCm = deltaY > 0 ? deltaY : 0.0;
+  const leftCm = deltaY < 0 ? Math.abs(deltaY) : 0.0;
 
   // 4. 3D Diagonal Vector Distance (Straight-line 3D Euclidean displacement from Rest Position):
-  const diagonalCm = Math.sqrt(deltaZ * deltaZ + deltaX * deltaX + lateralCm * lateralCm);
+  const diagonalCm = Math.sqrt(deltaZ * deltaZ + deltaX * deltaX + deltaY * deltaY);
 
   // Track session maximums
   if (upwardCm > reachState.maxUpwardCm) reachState.maxUpwardCm = upwardCm;
   if (downwardCm > reachState.maxDownwardCm) reachState.maxDownwardCm = downwardCm;
   if (forwardCm > reachState.maxForwardCm) reachState.maxForwardCm = forwardCm;
   if (backwardCm > reachState.maxBackwardCm) reachState.maxBackwardCm = backwardCm;
-  if (lateralCm > reachState.maxLateralCm) reachState.maxLateralCm = lateralCm;
+  if (leftCm > reachState.maxLeftCm) reachState.maxLeftCm = leftCm;
+  if (rightCm > reachState.maxRightCm) reachState.maxRightCm = rightCm;
   if (diagonalCm > reachState.maxDiagonalCm) reachState.maxDiagonalCm = diagonalCm;
 
   // Update DOM readouts
@@ -3897,8 +3922,10 @@ function updateReachCalculations(pitch, roll) {
   const fwdInEl = document.getElementById('val-reach-forward-in');
   const backEl = document.getElementById('val-reach-backward');
   const backInEl = document.getElementById('val-reach-backward-in');
-  const lateralEl = document.getElementById('val-reach-lateral');
-  const lateralInEl = document.getElementById('val-reach-lateral-in');
+  const leftEl = document.getElementById('val-reach-left');
+  const leftInEl = document.getElementById('val-reach-left-in');
+  const rightEl = document.getElementById('val-reach-right');
+  const rightInEl = document.getElementById('val-reach-right-in');
   const diagEl = document.getElementById('val-reach-diagonal');
   const diagInEl = document.getElementById('val-reach-diagonal-in');
 
@@ -3910,8 +3937,10 @@ function updateReachCalculations(pitch, roll) {
   if (fwdInEl) fwdInEl.textContent = `(${(forwardCm / 2.54).toFixed(1)} in)`;
   if (backEl) backEl.textContent = backwardCm.toFixed(1) + ' cm';
   if (backInEl) backInEl.textContent = `(${(backwardCm / 2.54).toFixed(1)} in)`;
-  if (lateralEl) lateralEl.textContent = lateralCm.toFixed(1) + ' cm';
-  if (lateralInEl) lateralInEl.textContent = `(${(lateralCm / 2.54).toFixed(1)} in)`;
+  if (leftEl) leftEl.textContent = leftCm.toFixed(1) + ' cm';
+  if (leftInEl) leftInEl.textContent = `(${(leftCm / 2.54).toFixed(1)} in)`;
+  if (rightEl) rightEl.textContent = rightCm.toFixed(1) + ' cm';
+  if (rightInEl) rightInEl.textContent = `(${(rightCm / 2.54).toFixed(1)} in)`;
   if (diagEl) diagEl.textContent = diagonalCm.toFixed(1) + ' cm';
   if (diagInEl) diagInEl.textContent = `(${(diagonalCm / 2.54).toFixed(1)} in)`;
 }

@@ -135,7 +135,7 @@ $$\text{Surge} = |M| - 9.80\,\text{m/s}^2$$
 
 ## 6. 3D Reach & Travel Distance Mathematics
 
-Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from their calibrated **Rest Position** is decomposed into 5 directional spatial channels plus a composite 3D Euclidean spatial vector:
+Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from their calibrated **Rest Position** is decomposed into 6 directional Cartesian channels (3 antagonistic pairs) plus a composite 3D Euclidean spatial vector:
 
 ```
                           Overhead (Pitch = +85°)
@@ -148,7 +148,8 @@ Using the kinematic arm-chain model pinned at the shoulder joint, the user's lin
                      Rest Position (Pitch_rest, Roll_rest)
                                     ├──────────────► Forward Extension (Δx_fwd)
                                     ├──────────────► Backward Retraction (Δx_back)
-                                    ├──────────────► Lateral Side Reach (Δy_lateral)
+                                    ├──────────────► Left Lateral Reach (Δy_left)
+                                    ├──────────────► Right Lateral Reach (Δy_right)
                                     ▼
                           Downward Drop (Δz_down)
 ```
@@ -181,15 +182,17 @@ $$\Delta x = L \times \left(\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}}
 The posterior retraction pulling the arm backward towards the torso or backrest:
 $$\Delta x_{\text{back}} = \begin{cases} |\Delta x|, & \text{if } \Delta x < 0 \\ 0, & \text{otherwise} \end{cases}$$
 
-### 6.6 Lateral Side Reach ($\Delta y_{\text{lateral}}$)
-The side-to-side sweeping motion and lateral trunk sway across the horizontal plane:
-$$\Delta y_{\text{lateral}} = L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right|$$
+### 6.6 Left Lateral Reach ($\Delta y_{\text{left}}$)
+The lateral sweeping motion directed toward the communicator's left side:
+$$\Delta y = L \times \left(\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right), \quad \Delta y_{\text{left}} = \begin{cases} |\Delta y|, & \text{if } \Delta y < 0 \\ 0, & \text{otherwise} \end{cases}$$
 
-* Captures cross-midline reaches and outward lateral deviations.
+### 6.7 Right Lateral Reach ($\Delta y_{\text{right}}$)
+The lateral sweeping motion directed toward the communicator's right side:
+$$\Delta y_{\text{right}} = \begin{cases} \Delta y, & \text{if } \Delta y > 0 \\ 0, & \text{otherwise} \end{cases}$$
 
-### 6.7 3D Euclidean Spatial Vector Reach ($\Delta D_{\text{3D}}$)
-The net straight-line 3D Euclidean displacement from the calibrated rest position:
-$$\Delta D_{\text{3D}} = \sqrt{\Delta z^2 + \Delta x^2 + \Delta y_{\text{lateral}}^2}$$
+### 6.8 3D Euclidean Spatial Vector Reach ($\Delta D_{\text{3D}}$)
+The net straight-line 3D Euclidean displacement from the calibrated rest position across all three dimensions:
+$$\Delta D_{\text{3D}} = \sqrt{\Delta z^2 + \Delta x^2 + \Delta y^2}$$
 
 This provides a single continuous metric quantifying the communicator's voluntary motor workspace volume.
 
