@@ -157,29 +157,29 @@ The scalar radius $L$ (shoulder-to-wrist distance) is measured using the live we
   $$L = \text{PixelDistance}(\text{Shoulder} \to \text{Wrist}) \times S \quad (\text{Default fallback: } 65\text{ cm} \approx 25.6\text{ in})$$
 
 ### 6.2 Vertical Elevation Reach ($\Delta h$)
-The vertical height gained from the lap resting position:
-$$\Delta h = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{lap}})\right)$$
+The vertical height gained from the calibrated rest position:
+$$\Delta h = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{rest}})\right)$$
 
-* At rest in lap ($\text{Pitch} \approx -30^\circ$): $\Delta h = 0.0\text{ cm}$.
+* At rest position ($\text{Pitch} = \text{Pitch}_{\text{rest}}$, tared via **Set Rest Position** or resting in lap $\approx -30^\circ$): $\Delta h = 0.0\text{ cm}$.
 * At full vertical stretch ($\text{Pitch} \approx +85^\circ$): $\Delta h \approx 0.95 \text{ to } 1.25\text{ m}$ ($37 \text{ to } 49\text{ inches}$).
 
 ### 6.3 Horizontal Reach ($\Delta d_{\text{horiz}}$)
 The forward reach and lateral sway combined in the horizontal plane:
 $$\begin{aligned}
-\Delta d_{\text{forward}} &= L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{lap}})\right| \\[4pt]
-\Delta d_{\text{lateral}} &= L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{lap}})\right| \\[4pt]
+\Delta d_{\text{forward}} &= L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right| \\[4pt]
+\Delta d_{\text{lateral}} &= L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right| \\[4pt]
 \Delta d_{\text{horiz}} &= \sqrt{\Delta d_{\text{forward}}^2 + \Delta d_{\text{lateral}}^2}
 \end{aligned}$$
 
 ### 6.4 3D Diagonal Vector Reach ($\Delta D_{\text{3D}}$)
-The net straight-line 3D Euclidean displacement from the resting position in the lap:
+The net straight-line 3D Euclidean displacement from the calibrated rest position:
 $$\Delta D_{\text{3D}} = \sqrt{\Delta h^2 + \Delta d_{\text{horiz}}^2}$$
 
 This provides a single continuous metric quantifying the communicator's voluntary motor workspace volume.
 
 ---
 
-## 6. Sensor Collection & Processing Pipeline
+## 7. Sensor Collection & Processing Pipeline
 
 ```
 [Movesense 2.0 BLE Sensor] (50Hz Accel/Gyro)
@@ -209,7 +209,7 @@ This provides a single continuous metric quantifying the communicator's voluntar
 
 ---
 
-## 7. Interactive Tools Associated with IMU Data
+## 8. Interactive Tools Associated with IMU Data
 
 AllyAAC provides four integrated tools for working with these telemetry streams:
 
@@ -242,7 +242,7 @@ AllyAAC provides four integrated tools for working with these telemetry streams:
 
 ---
 
-## 8. Summary Formula Reference Card
+## 9. Summary Formula Reference Card
 
 $$\begin{aligned}
 \text{Magnitude } |M| &= \sqrt{A_x^2 + A_y^2 + A_z^2} \\[6pt]

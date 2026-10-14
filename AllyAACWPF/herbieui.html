@@ -1472,8 +1472,8 @@ body {
             <span class="text-xs font-bold text-[#CDD6F4]">Inclinometer & 3D Reach</span>
           </div>
           <div class="flex items-center gap-1">
-            <button onclick="autoCalibrateArmLength()" id="btn-auto-cal-arm" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#89B4FA] font-bold transition active:scale-95" title="Auto-measure arm length from camera keypoints (or reset baseline to lap)">📐 Calibrate</button>
-            <button onclick="resetReachBaseline()" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95" title="Set current arm position as Lap / Rest baseline">Set Lap</button>
+            <button onclick="autoCalibrateArmLength()" id="btn-auto-cal-arm" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#89B4FA] font-bold transition active:scale-95" title="Auto-measure arm length from camera keypoints (or reset baseline to rest position)">📐 Calibrate</button>
+            <button onclick="resetReachBaseline()" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95" title="Set current arm position as Rest position baseline">Set Rest Position</button>
           </div>
         </div>
         <!-- 4-Gauge Needles Strip -->
@@ -3744,10 +3744,10 @@ function autoCalibrateArmLength() {
     }
   }
 
-  // Fallback calibration: Set current sensor pitch as lap baseline
+  // Fallback calibration: Set current sensor pitch as rest baseline
   const curPitch = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].pitch : -30;
   reachState.baselinePitch = curPitch;
-  showGestureHUD(`Lap Baseline Calibrated: Pitch ${Math.round(curPitch)}° • Arm: ${reachState.armLengthCm} cm`, 1.2);
+  showGestureHUD(`Rest Position Calibrated: Pitch ${Math.round(curPitch)}° • Arm: ${reachState.armLengthCm} cm`, 1.2);
 }
 
 function resetReachBaseline() {
@@ -3758,7 +3758,7 @@ function resetReachBaseline() {
   reachState.maxVerticalCm = 0.0;
   reachState.maxHorizCm = 0.0;
   reachState.maxDiagonalCm = 0.0;
-  showGestureHUD(`Lap Baseline Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.0);
+  showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.0);
 }
 
 function updateReachCalculations(pitch, roll) {
