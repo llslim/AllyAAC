@@ -4128,6 +4128,7 @@ function updateStudioVisuals(accel, tilt, detected) {
     // Map dynamic sway (-10 to +10 m/s²) to needle rotation (-90° to +90°)
     const swayAngle = Math.max(-90, Math.min(90, Math.round(dynamicSway * 9)));
     swayNeedle.style.transform = `rotate(${swayAngle}deg)`;
+  }
   if (swayValEl) swayValEl.textContent = dynamicSway.toFixed(1);
   // Update 3D Reach Travel Distances (Vertical, Horizontal, 3D Vector)
   updateReachCalculations(tilt.pitch, tilt.roll);
