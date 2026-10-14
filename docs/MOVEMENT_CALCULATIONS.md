@@ -135,19 +135,22 @@ $$\text{Surge} = |M| - 9.80\,\text{m/s}^2$$
 
 ## 6. 3D Reach & Travel Distance Mathematics
 
-Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from their calibrated **Rest Position** is decomposed into three orthogonal Cartesian axes plus a total Euclidean 3D spatial vector:
+Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from their calibrated **Rest Position** is decomposed into 5 directional spatial channels plus a composite 3D Euclidean spatial vector:
 
 ```
                           Overhead (Pitch = +85°)
                                  \  O
                                   \ |  ▲
                              Arm   \|  │
-                            Length  │  │ Vertical Reach (Δh)
+                            Length  │  │ Upward Reach (Δz_up)
                              (L)    │  │
                                     ▼  ▼
                      Rest Position (Pitch_rest, Roll_rest)
-                                    ├──────────────► Forward Extension (Δd_extend)
-                                    └──────────────► Lateral Side Reach (Δd_lateral)
+                                    ├──────────────► Forward Extension (Δx_fwd)
+                                    ├──────────────► Backward Retraction (Δx_back)
+                                    ├──────────────► Lateral Side Reach (Δy_lateral)
+                                    ▼
+                          Downward Drop (Δz_down)
 ```
 
 ### 6.1 Automatic Camera Arm-Length Calibration ($L$)
@@ -157,28 +160,36 @@ The scalar radius $L$ (shoulder-to-wrist distance) is measured using the live we
 * **Arm Length**:
   $$L = \text{PixelDistance}(\text{Shoulder} \to \text{Wrist}) \times S \quad (\text{Default fallback: } 65\text{ cm} \approx 25.6\text{ in})$$
 
-### 6.2 Vertical Elevation Reach ($\Delta h$)
-The vertical height gained from the calibrated rest position:
-$$\Delta h = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{rest}})\right)$$
+### 6.2 Upward Elevation Reach ($\Delta z_{\text{up}}$)
+The vertical height gained above the calibrated rest position:
+$$\Delta z = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{rest}})\right), \quad \Delta z_{\text{up}} = \max(0, \Delta z)$$
 
-* At rest position ($\text{Pitch} = \text{Pitch}_{\text{rest}}$, tared via **Set Rest Position** or resting in lap $\approx -30^\circ$): $\Delta h = 0.0\text{ cm}$.
-* At full vertical stretch ($\text{Pitch} \approx +85^\circ$): $\Delta h \approx 0.95 \text{ to } 1.25\text{ m}$ ($37 \text{ to } 49\text{ inches}$).
+* At rest position ($\text{Pitch} = \text{Pitch}_{\text{rest}}$): $\Delta z_{\text{up}} = 0.0\text{ cm}$.
+* At full vertical stretch ($\text{Pitch} \approx +85^\circ$): $\Delta z_{\text{up}} \approx 0.95 \text{ to } 1.25\text{ m}$ ($37 \text{ to } 49\text{ in}$).
 
-### 6.3 Forward Extension Reach ($\Delta d_{\text{extend}}$)
-The forward/backward linear travel extending toward a table, desk, or screen:
-$$\Delta d_{\text{extend}} = L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right|$$
+### 6.3 Downward Drop Reach ($\Delta z_{\text{down}}$)
+The vertical displacement dropping below the calibrated rest position (e.g. reaching toward floor or footrest):
+$$\Delta z_{\text{down}} = \begin{cases} |\Delta z|, & \text{if } \Delta z < 0 \\ 0, & \text{otherwise} \end{cases}$$
 
-* Quantifies anterior extension from resting posture toward AAC touchscreens, wheelchair trays, or assistive switches.
+### 6.4 Forward Extension Reach ($\Delta x_{\text{fwd}}$)
+The anterior linear travel extending forward from rest toward a table, desk, or screen:
+$$\Delta x = L \times \left(\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right), \quad \Delta x_{\text{fwd}} = \max(0, \Delta x)$$
 
-### 6.4 Lateral Side Reach ($\Delta d_{\text{lateral}}$)
+* Quantifies intentional forward reaches toward touchscreens, wheelchair trays, or AAC switches.
+
+### 6.5 Backward Retraction Reach ($\Delta x_{\text{back}}$)
+The posterior retraction pulling the arm backward towards the torso or backrest:
+$$\Delta x_{\text{back}} = \begin{cases} |\Delta x|, & \text{if } \Delta x < 0 \\ 0, & \text{otherwise} \end{cases}$$
+
+### 6.6 Lateral Side Reach ($\Delta y_{\text{lateral}}$)
 The side-to-side sweeping motion and lateral trunk sway across the horizontal plane:
-$$\Delta d_{\text{lateral}} = L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right|$$
+$$\Delta y_{\text{lateral}} = L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right|$$
 
 * Captures cross-midline reaches and outward lateral deviations.
 
-### 6.5 3D Euclidean Spatial Vector Reach ($\Delta D_{\text{3D}}$)
+### 6.7 3D Euclidean Spatial Vector Reach ($\Delta D_{\text{3D}}$)
 The net straight-line 3D Euclidean displacement from the calibrated rest position:
-$$\Delta D_{\text{3D}} = \sqrt{\Delta h^2 + \Delta d_{\text{extend}}^2 + \Delta d_{\text{lateral}}^2}$$
+$$\Delta D_{\text{3D}} = \sqrt{\Delta z^2 + \Delta x^2 + \Delta y_{\text{lateral}}^2}$$
 
 This provides a single continuous metric quantifying the communicator's voluntary motor workspace volume.
 

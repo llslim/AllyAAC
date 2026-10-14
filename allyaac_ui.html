@@ -1516,26 +1516,36 @@ body {
           </div>
         </div>
 
-        <!-- 3D Reach Travel Metrics Bar (Vertical, Extend, Lateral, 3D Vector) -->
-        <div class="pt-1.5 border-t border-[#313244]/60 grid grid-cols-4 gap-1 text-[10px] font-mono bg-[#181825]/60 p-1.5 rounded-lg">
+        <!-- 3D Reach Travel Metrics Bar (Upward, Downward, Forward, Backward, Lateral, 3D Vector) -->
+        <div class="pt-1.5 border-t border-[#313244]/60 grid grid-cols-3 sm:grid-cols-6 gap-1 text-[10px] font-mono bg-[#181825]/60 p-1.5 rounded-lg">
           <div class="flex flex-col items-center text-center">
-            <span class="text-[8px] text-[#89B4FA] font-bold">↕ VERTICAL</span>
-            <span id="val-reach-vertical" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-vertical-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            <span class="text-[8px] text-[#89B4FA] font-bold" title="Upward Height Elevation from Rest Position">⬆ UPWARD</span>
+            <span id="val-reach-upward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-upward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
           </div>
           <div class="flex flex-col items-center text-center border-l border-[#313244]">
-            <span class="text-[8px] text-[#A6E3A1] font-bold" title="Forward Extension Reach">⬆ EXTEND</span>
-            <span id="val-reach-extend" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
-            <span id="val-reach-extend-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+            <span class="text-[8px] text-[#89DCEB] font-bold" title="Downward Height Drop from Rest Position">⬇ DOWNWARD</span>
+            <span id="val-reach-downward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-downward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+          </div>
+          <div class="flex flex-col items-center text-center border-l border-[#313244]">
+            <span class="text-[8px] text-[#A6E3A1] font-bold" title="Forward Reaching Extension from Rest Position">➡ FORWARD</span>
+            <span id="val-reach-forward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-forward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
+          </div>
+          <div class="flex flex-col items-center text-center border-l border-[#313244]">
+            <span class="text-[8px] text-[#F9E2AF] font-bold" title="Backward Retraction from Rest Position">⬅ BACKWARD</span>
+            <span id="val-reach-backward" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-backward-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
           </div>
           <div class="flex flex-col items-center text-center border-l border-[#313244]">
             <span class="text-[8px] text-[#FAB387] font-bold" title="Left / Right Lateral Reach & Sway">↔ LATERAL</span>
-            <span id="val-reach-lateral" class="text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
+            <span id="val-reach-lateral" class="text-[10px] sm:text-[11px] font-black text-[#CDD6F4]">0.0 cm</span>
             <span id="val-reach-lateral-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
           </div>
           <div class="flex flex-col items-center text-center border-l border-[#313244]">
             <span class="text-[8px] text-[#CBA6F7] font-bold" title="Total 3D Euclidean Spatial Vector Reach from Rest Position">↗ 3D VECTOR</span>
-            <span id="val-reach-diagonal" class="text-[11px] font-black text-[#CBA6F7]">0.0 cm</span>
+            <span id="val-reach-diagonal" class="text-[10px] sm:text-[11px] font-black text-[#CBA6F7]">0.0 cm</span>
             <span id="val-reach-diagonal-in" class="text-[8px] text-[#6C7086]">(0.0 in)</span>
           </div>
         </div>
@@ -3725,8 +3735,10 @@ let reachState = {
   armLengthCm: 65.0, // Default adult arm length from shoulder to wrist (cm)
   baselinePitch: -30.0, // Default rest pitch angle (degrees)
   baselineRoll: 0.0,   // Default rest roll angle (degrees)
-  maxVerticalCm: 0.0,
-  maxExtendCm: 0.0,
+  maxUpwardCm: 0.0,
+  maxDownwardCm: 0.0,
+  maxForwardCm: 0.0,
+  maxBackwardCm: 0.0,
   maxLateralCm: 0.0,
   maxDiagonalCm: 0.0
 };
@@ -3836,8 +3848,10 @@ function resetReachBaseline() {
   const curRoll = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].roll : 0;
   reachState.baselinePitch = curPitch;
   reachState.baselineRoll = curRoll;
-  reachState.maxVerticalCm = 0.0;
-  reachState.maxExtendCm = 0.0;
+  reachState.maxUpwardCm = 0.0;
+  reachState.maxDownwardCm = 0.0;
+  reachState.maxForwardCm = 0.0;
+  reachState.maxBackwardCm = 0.0;
   reachState.maxLateralCm = 0.0;
   reachState.maxDiagonalCm = 0.0;
   showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.2);
@@ -3850,38 +3864,52 @@ function updateReachCalculations(pitch, roll) {
   const radBaseRoll = (reachState.baselineRoll * Math.PI) / 180;
   const radCurRoll = (roll * Math.PI) / 180;
 
-  // 1. Vertical Travel (Elevation gained from Rest to Overhead): Δh = L * (sin(Pitch) - sin(Pitch_base))
-  const verticalCm = Math.max(0, L * (Math.sin(radCurPitch) - Math.sin(radBasePitch)));
+  // 1. Vertical signed displacement (Z axis: upward vs downward from rest)
+  const deltaZ = L * (Math.sin(radCurPitch) - Math.sin(radBasePitch));
+  const upwardCm = deltaZ > 0 ? deltaZ : 0.0;
+  const downwardCm = deltaZ < 0 ? Math.abs(deltaZ) : 0.0;
 
-  // 2. Extend Travel (Forward/Back extension reaching toward screen/table): Δd_extend = L * |cos(Pitch) - cos(Pitch_base)|
-  const extendCm = L * Math.abs(Math.cos(radCurPitch) - Math.cos(radBasePitch));
+  // 2. Forward / Backward signed displacement (X axis: extending forward vs pulling backward from rest)
+  const deltaX = L * (Math.cos(radCurPitch) - Math.cos(radBasePitch));
+  const forwardCm = deltaX > 0 ? deltaX : 0.0;
+  const backwardCm = deltaX < 0 ? Math.abs(deltaX) : 0.0;
 
-  // 3. Lateral Travel (Left/Right side reach and dynamic sway): Δd_lateral = L * |sin(Roll) - sin(Roll_base)|
+  // 3. Lateral displacement (Y axis: left/right side reach and dynamic sway)
   const lateralCm = L * Math.abs(Math.sin(radCurRoll) - Math.sin(radBaseRoll));
 
-  // 4. 3D Diagonal Vector Distance (Straight-line 3D displacement from Rest Position):
-  const diagonalCm = Math.sqrt(verticalCm * verticalCm + extendCm * extendCm + lateralCm * lateralCm);
+  // 4. 3D Diagonal Vector Distance (Straight-line 3D Euclidean displacement from Rest Position):
+  const diagonalCm = Math.sqrt(deltaZ * deltaZ + deltaX * deltaX + lateralCm * lateralCm);
 
   // Track session maximums
-  if (verticalCm > reachState.maxVerticalCm) reachState.maxVerticalCm = verticalCm;
-  if (extendCm > reachState.maxExtendCm) reachState.maxExtendCm = extendCm;
+  if (upwardCm > reachState.maxUpwardCm) reachState.maxUpwardCm = upwardCm;
+  if (downwardCm > reachState.maxDownwardCm) reachState.maxDownwardCm = downwardCm;
+  if (forwardCm > reachState.maxForwardCm) reachState.maxForwardCm = forwardCm;
+  if (backwardCm > reachState.maxBackwardCm) reachState.maxBackwardCm = backwardCm;
   if (lateralCm > reachState.maxLateralCm) reachState.maxLateralCm = lateralCm;
   if (diagonalCm > reachState.maxDiagonalCm) reachState.maxDiagonalCm = diagonalCm;
 
   // Update DOM readouts
-  const vertEl = document.getElementById('val-reach-vertical');
-  const vertInEl = document.getElementById('val-reach-vertical-in');
-  const extendEl = document.getElementById('val-reach-extend');
-  const extendInEl = document.getElementById('val-reach-extend-in');
+  const upEl = document.getElementById('val-reach-upward');
+  const upInEl = document.getElementById('val-reach-upward-in');
+  const downEl = document.getElementById('val-reach-downward');
+  const downInEl = document.getElementById('val-reach-downward-in');
+  const fwdEl = document.getElementById('val-reach-forward');
+  const fwdInEl = document.getElementById('val-reach-forward-in');
+  const backEl = document.getElementById('val-reach-backward');
+  const backInEl = document.getElementById('val-reach-backward-in');
   const lateralEl = document.getElementById('val-reach-lateral');
   const lateralInEl = document.getElementById('val-reach-lateral-in');
   const diagEl = document.getElementById('val-reach-diagonal');
   const diagInEl = document.getElementById('val-reach-diagonal-in');
 
-  if (vertEl) vertEl.textContent = verticalCm.toFixed(1) + ' cm';
-  if (vertInEl) vertInEl.textContent = `(${(verticalCm / 2.54).toFixed(1)} in)`;
-  if (extendEl) extendEl.textContent = extendCm.toFixed(1) + ' cm';
-  if (extendInEl) extendInEl.textContent = `(${(extendCm / 2.54).toFixed(1)} in)`;
+  if (upEl) upEl.textContent = upwardCm.toFixed(1) + ' cm';
+  if (upInEl) upInEl.textContent = `(${(upwardCm / 2.54).toFixed(1)} in)`;
+  if (downEl) downEl.textContent = downwardCm.toFixed(1) + ' cm';
+  if (downInEl) downInEl.textContent = `(${(downwardCm / 2.54).toFixed(1)} in)`;
+  if (fwdEl) fwdEl.textContent = forwardCm.toFixed(1) + ' cm';
+  if (fwdInEl) fwdInEl.textContent = `(${(forwardCm / 2.54).toFixed(1)} in)`;
+  if (backEl) backEl.textContent = backwardCm.toFixed(1) + ' cm';
+  if (backInEl) backInEl.textContent = `(${(backwardCm / 2.54).toFixed(1)} in)`;
   if (lateralEl) lateralEl.textContent = lateralCm.toFixed(1) + ' cm';
   if (lateralInEl) lateralInEl.textContent = `(${(lateralCm / 2.54).toFixed(1)} in)`;
   if (diagEl) diagEl.textContent = diagonalCm.toFixed(1) + ' cm';
