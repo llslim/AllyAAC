@@ -1473,7 +1473,7 @@ body {
           </div>
           <div class="flex items-center gap-1">
             <button onclick="autoCalibrateArmLength()" id="btn-auto-cal-arm" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#89B4FA] font-bold transition active:scale-95" title="Auto-measure arm length from camera keypoints (or reset baseline to rest position)">📐 Calibrate</button>
-            <button onclick="resetReachBaseline()" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95" title="Set current arm position as Rest position baseline">Set Rest Position</button>
+            <button onclick="startRestPositionCountdown()" id="btn-set-rest-pos" class="text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95" title="Start 5-second countdown to tare resting posture baseline">Set Rest Position</button>
           </div>
         </div>
         <!-- 4-Gauge Needles Strip -->
@@ -3750,6 +3750,81 @@ function autoCalibrateArmLength() {
   showGestureHUD(`Rest Position Calibrated: Pitch ${Math.round(curPitch)}° • Arm: ${reachState.armLengthCm} cm`, 1.2);
 }
 
+let restCountdownTimer = null;
+let restCountdownRemaining = 0;
+
+function playCountdownBeep(freq = 660, duration = 0.08) {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    if (!window._studioAudioCtx) {
+      window._studioAudioCtx = new AudioCtx();
+    }
+    const ctx = window._studioAudioCtx;
+    if (ctx.state === 'suspended') {
+      ctx.resume();
+    }
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(freq, ctx.currentTime);
+    gain.gain.setValueAtTime(0.06, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + duration);
+  } catch (e) {
+    // Audio optional / browser policy safe
+  }
+}
+
+function startRestPositionCountdown(durationSec = 5) {
+  const btn = document.getElementById('btn-set-rest-pos');
+  if (restCountdownTimer) {
+    clearInterval(restCountdownTimer);
+    restCountdownTimer = null;
+    if (btn) {
+      btn.innerHTML = 'Set Rest Position';
+      btn.className = 'text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95';
+    }
+    showGestureHUD('Countdown canceled', 0.8);
+    return;
+  }
+
+  restCountdownRemaining = durationSec;
+  if (btn) {
+    btn.className = 'text-[9px] px-1.5 py-0.5 rounded bg-[#FAB387] text-[#11111B] font-black transition active:scale-95 animate-pulse shadow-sm';
+    btn.innerHTML = `⏳ Rest in ${restCountdownRemaining}s`;
+  }
+  showGestureHUD(`Place arm in rest position... (${restCountdownRemaining}s)`, 1.0);
+  playCountdownBeep(660, 0.08);
+
+  restCountdownTimer = setInterval(() => {
+    restCountdownRemaining--;
+    if (restCountdownRemaining > 0) {
+      if (btn) btn.innerHTML = `⏳ Rest in ${restCountdownRemaining}s`;
+      showGestureHUD(`Rest position in ${restCountdownRemaining}s...`, 0.9);
+      playCountdownBeep(660, 0.08);
+    } else {
+      clearInterval(restCountdownTimer);
+      restCountdownTimer = null;
+      if (btn) {
+        btn.className = 'text-[9px] px-1.5 py-0.5 rounded bg-[#A6E3A1] text-[#11111B] font-black transition active:scale-95';
+        btn.innerHTML = '✅ Rest Set!';
+        setTimeout(() => {
+          if (btn) {
+            btn.className = 'text-[9px] px-1.5 py-0.5 rounded bg-[#313244] hover:bg-[#45475A] text-[#A6ADC8] font-bold transition active:scale-95';
+            btn.innerHTML = 'Set Rest Position';
+          }
+        }, 1500);
+      }
+      playCountdownBeep(1046, 0.25);
+      resetReachBaseline();
+    }
+  }, 1000);
+}
+
 function resetReachBaseline() {
   const curPitch = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].pitch : -30;
   const curRoll = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1].roll : 0;
@@ -3758,7 +3833,7 @@ function resetReachBaseline() {
   reachState.maxVerticalCm = 0.0;
   reachState.maxHorizCm = 0.0;
   reachState.maxDiagonalCm = 0.0;
-  showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.0);
+  showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.2);
 }
 
 function updateReachCalculations(pitch, roll) {
