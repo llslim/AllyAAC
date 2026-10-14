@@ -135,7 +135,7 @@ $$\text{Surge} = |M| - 9.80\,\text{m/s}^2$$
 
 ## 6. 3D Reach & Travel Distance Mathematics
 
-Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from **rest in the lap** to **overhead or horizontal extension** is computed across three spatial dimensions:
+Using the kinematic arm-chain model pinned at the shoulder joint, the user's linear reach distance from their calibrated **Rest Position** is decomposed into three orthogonal Cartesian axes plus a total Euclidean 3D spatial vector:
 
 ```
                           Overhead (Pitch = +85°)
@@ -145,8 +145,9 @@ Using the kinematic arm-chain model pinned at the shoulder joint, the user's lin
                             Length  │  │ Vertical Reach (Δh)
                              (L)    │  │
                                     ▼  ▼
-                          Lap (Pitch ≈ -30°)
-                                    +──────────────► Horizontal Reach (Δx, Δy)
+                     Rest Position (Pitch_rest, Roll_rest)
+                                    ├──────────────► Forward Extension (Δd_extend)
+                                    └──────────────► Lateral Side Reach (Δd_lateral)
 ```
 
 ### 6.1 Automatic Camera Arm-Length Calibration ($L$)
@@ -163,17 +164,21 @@ $$\Delta h = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{rest}}
 * At rest position ($\text{Pitch} = \text{Pitch}_{\text{rest}}$, tared via **Set Rest Position** or resting in lap $\approx -30^\circ$): $\Delta h = 0.0\text{ cm}$.
 * At full vertical stretch ($\text{Pitch} \approx +85^\circ$): $\Delta h \approx 0.95 \text{ to } 1.25\text{ m}$ ($37 \text{ to } 49\text{ inches}$).
 
-### 6.3 Horizontal Reach ($\Delta d_{\text{horiz}}$)
-The forward reach and lateral sway combined in the horizontal plane:
-$$\begin{aligned}
-\Delta d_{\text{forward}} &= L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right| \\[4pt]
-\Delta d_{\text{lateral}} &= L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right| \\[4pt]
-\Delta d_{\text{horiz}} &= \sqrt{\Delta d_{\text{forward}}^2 + \Delta d_{\text{lateral}}^2}
-\end{aligned}$$
+### 6.3 Forward Extension Reach ($\Delta d_{\text{extend}}$)
+The forward/backward linear travel extending toward a table, desk, or screen:
+$$\Delta d_{\text{extend}} = L \times \left|\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right|$$
 
-### 6.4 3D Diagonal Vector Reach ($\Delta D_{\text{3D}}$)
+* Quantifies anterior extension from resting posture toward AAC touchscreens, wheelchair trays, or assistive switches.
+
+### 6.4 Lateral Side Reach ($\Delta d_{\text{lateral}}$)
+The side-to-side sweeping motion and lateral trunk sway across the horizontal plane:
+$$\Delta d_{\text{lateral}} = L \times \left|\sin(\text{Roll}) - \sin(\text{Roll}_{\text{rest}})\right|$$
+
+* Captures cross-midline reaches and outward lateral deviations.
+
+### 6.5 3D Euclidean Spatial Vector Reach ($\Delta D_{\text{3D}}$)
 The net straight-line 3D Euclidean displacement from the calibrated rest position:
-$$\Delta D_{\text{3D}} = \sqrt{\Delta h^2 + \Delta d_{\text{horiz}}^2}$$
+$$\Delta D_{\text{3D}} = \sqrt{\Delta h^2 + \Delta d_{\text{extend}}^2 + \Delta d_{\text{lateral}}^2}$$
 
 This provides a single continuous metric quantifying the communicator's voluntary motor workspace volume.
 
