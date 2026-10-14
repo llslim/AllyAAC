@@ -232,11 +232,32 @@ This provides a single continuous metric quantifying the communicator's voluntar
 
 AllyAAC provides four integrated tools for working with these telemetry streams:
 
-### 1. Multi-Channel Oscilloscope (`#studio-waveform-canvas`)
-* **Role**: Real-time signal monitor.
+### 1. 6-Channel Kinematic Waveform Canvas & Scrubber (`#studio-waveform-canvas`)
+* **Role**: Primary real-time kinematic signal monitor and interactive buffer timeline scrubber.
 * **Temporal Window**: Rolling 120-sample buffer (~2.4 seconds at 50 Hz).
 * **Calibrated Time Ticks**: Shows relative time divisions: `-2.4s`, `-1.8s`, `-1.2s`, `-0.6s`, `0.0s (Now)`.
-* **Scale**: $\pm 25\,\text{m/s}^2$ with horizontal guides at $+15, 0, -15\,\text{m/s}^2$.
+* **The 6 Kinematic Channels**:
+  1. **Pitch ($\theta$)** (Blue `#89B4FA`): Forearm elevation angle ($-90^\circ$ to $+90^\circ$).
+  2. **Roll ($\phi$)** (Purple `#CBA6F7`): Forearm supination/pronation rotation ($-90^\circ$ to $+90^\circ$).
+  3. **Sway** (Green `#A6E3A1`): Gravity-compensated dynamic lateral acceleration ($\pm 10\,\text{m/s}^2$).
+  4. **Magnitude ($|M|$)** (Peach `#FAB387`): Dynamic surge shockwave ($|M| - 9.80\,\text{m/s}^2$, $0$ to $15\,\text{m/s}^2$).
+  5. **Surge ($A_x$)** (Pink `#F38BA8`): Anterior-posterior longitudinal linear force ($\pm 20\,\text{m/s}^2$).
+  6. **Heave ($A_z$)** (Cyan `#89DCEB`): Vertical linear dynamic acceleration ($A_z - 9.80\,\text{m/s}^2$, $\pm 20\,\text{m/s}^2$).
+* **Dual-Axis Scaling Architecture**:
+  * **Left Y-Axis (Angles)**: Calibrated from $-90^\circ$ to $+90^\circ$ with ticks at $+90^\circ, +45^\circ, 0^\circ, -45^\circ, -90^\circ$.
+  * **Right Y-Axis (Acceleration)**: Calibrated from $-20\,\text{m/s}^2$ to $+20\,\text{m/s}^2$ with ticks at $+20, +10, 0, -10, -20\,\text{m/s}^2$.
+* **Interactive Waveform Scrubber**:
+  * **Dual Operating Modes**:
+    * `🔴 Live Stream`: Real-time streaming 50 Hz rolling telemetry window.
+    * `🎞️ Scrubber`: Frozen interactive timeline allowing frame-by-frame inspection.
+  * **Interactive Scrubber Controls**:
+    * Play / Pause toggle with animated transport loop.
+    * Frame-stepping buttons: `⏮ -1F` (-20 ms) and `⏭ +1F` (+20 ms).
+    * Configurable playback speeds (`1.0x`, `0.5x`, `0.25x`).
+    * Loop playback toggle (`🔁 Loop`).
+    * Scrub slider (`#studio-wf-slider`) + click-and-drag scrubbing directly on the waveform canvas.
+    * Glowing cursor line (`#studio-wf-playhead`) with accent marker dots highlighting exact instantaneous channel states.
+    * Interactive channel filter pills (`Pitch`, `Roll`, `Sway`, `|M| Shock`, `Ax`, `Az`) with live telemetry badges and toggleable visibility.
 
 ### 2. Inclinometer Gauges (`#inclinometer-dial`)
 * **Role**: Static orientation and dynamic sway monitor.
@@ -249,7 +270,7 @@ AllyAAC provides four integrated tools for working with these telemetry streams:
 ### 3. Synchronized Timeline Scrubber & Annotator (`#scrubber-timeline-canvas`)
 * **Role**: Frame-accurate post-recording segmentation and labeling.
 * **Features**:
-  * Displays the entire captured session from $t=0.00\text{s}$ to $t_{\text{end}}$.
+  * Displays the entire captured session from $t=0.00\text{s}$ to $t_{\text{end}}$ with unified 6-channel traces.
   * Calibrated absolute time ticks ($0.00\text{s}, 0.50\text{s}, 1.00\text{s}, \dots$).
   * Glowing synchronized playhead (`#scrubber-sync-playhead`) with floating time badge (`#scrubber-playhead-stamp`).
   * In/Out boundary markers (`Set [ In`, `Set Out ]`) for cropping gesture templates.

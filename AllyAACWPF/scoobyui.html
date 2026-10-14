@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AllyAAC - Multi-Modal AAC & Gesture Studio</title>
+  <title>AllyAAC-Windows - Multi-Modal Gesture AAC</title>
   <script src="tailwindcss.min.js"></script>
   <style>
 body {
@@ -1144,8 +1144,8 @@ body {
   <div class="flex items-center gap-3">
     <div class="flex items-center gap-2">
       <h1 class="app-name-bind text-lg font-black tracking-tight bg-gradient-to-r from-[#89B4FA] via-[#CBA6F7] to-[#F5C2E7] bg-clip-text text-transparent">
-        AllyAAC
-      </h1>
+            AllyAAC-Windows
+          </h1>
       <span class="text-[10px] uppercase font-bold tracking-widest px-2 py-0.5 rounded-md bg-[#89B4FA]/20 text-[#89B4FA] border border-[#89B4FA]/40 font-mono">v3.0.2</span>
     </div>
 
@@ -1441,25 +1441,123 @@ body {
       </div>
     </div>
 
-    <!-- Oscilloscope Canvas Box -->
-    <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3 flex flex-col gap-2 shadow-inner">
-      <div class="flex items-center justify-between text-xs font-bold">
+    <!-- 6-Channel Kinematic Waveform Canvas & Scrubber Box -->
+    <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3 flex flex-col gap-2.5 shadow-inner">
+      <!-- Header: Title, Mode Toggles & Telemetry Rates -->
+      <div class="flex items-center justify-between text-xs flex-wrap gap-2">
         <div class="flex items-center gap-2">
-          <span class="w-2.5 h-2.5 rounded-full bg-[#89B4FA] animate-pulse"></span>
-          <span class="text-[#CDD6F4]">Multi-Channel Oscilloscope (Linear Acceleration Ax/Ay/Az & Magnitude)</span>
+          <span id="studio-wf-mode-led" class="w-2.5 h-2.5 rounded-full bg-[#F38BA8] animate-pulse"></span>
+          <span class="font-bold text-[#CDD6F4] tracking-wide">6-Channel Kinematic Waveform Canvas</span>
+          <div class="inline-flex rounded-lg bg-[#181825] p-0.5 border border-[#313244]">
+            <button id="btn-wf-mode-live" onclick="setStudioWaveformMode('live')" class="px-2 py-0.5 rounded text-[10px] font-bold bg-[#89B4FA] text-[#11111B] transition active:scale-95 flex items-center gap-1 shadow-sm">
+              <span>🔴</span> Live Stream
+            </button>
+            <button id="btn-wf-mode-scrub" onclick="setStudioWaveformMode('scrub')" class="px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1">
+              <span>🎞️</span> Scrubber
+            </button>
+          </div>
         </div>
         <div class="flex items-center gap-3 font-mono text-[11px]">
+          <span id="studio-wf-timecode" class="text-[#89B4FA] bg-[#181825] px-2 py-0.5 rounded border border-[#313244]/80 font-bold">0.0s (Live)</span>
           <span id="studio-fps-counter" class="text-[#A6ADC8]">50 Hz</span>
           <span id="studio-sample-rate" class="text-[#A6E3A1]">0 Samples</span>
         </div>
       </div>
-      <canvas id="studio-waveform-canvas" width="800" height="170" class="w-full h-40 rounded-lg bg-[#181825] border border-[#313244] shadow-sm"></canvas>
-      <div class="flex items-center justify-between text-[10px] text-[#6C7086] font-mono px-1">
-        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#F38BA8]"></span> Ax (Surge)</span>
-        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#A6E3A1]"></span> Ay (Sway)</span>
-        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#89B4FA]"></span> Az (Heave)</span>
-        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-[#FAB387]"></span> |M| - 9.8 (Dynamic Shock)</span>
-        <span>Scale: ±25 m/s²</span>
+
+      <!-- 6-Channel Filter Legend & Real-Time Value Badges -->
+      <div class="flex items-center justify-between gap-1 flex-wrap text-[10px] font-mono px-0.5 select-none">
+        <div class="flex items-center gap-1.5 flex-wrap">
+          <!-- Pitch -->
+          <button id="btn-ch-pitch" onclick="toggleStudioWaveformChannel('pitch')" class="px-2 py-0.5 rounded-md border border-[#89B4FA]/60 bg-[#89B4FA]/15 text-[#89B4FA] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Pitch Angle (Forearm Elevation, -90° to +90°)">
+            <span class="w-2 h-2 rounded-full bg-[#89B4FA]"></span>
+            <span>Pitch:</span>
+            <span id="wf-val-pitch" class="font-black text-white">0°</span>
+          </button>
+          <!-- Roll -->
+          <button id="btn-ch-roll" onclick="toggleStudioWaveformChannel('roll')" class="px-2 py-0.5 rounded-md border border-[#CBA6F7]/60 bg-[#CBA6F7]/15 text-[#CBA6F7] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Roll Angle (Forearm Supination/Pronation, -90° to +90°)">
+            <span class="w-2 h-2 rounded-full bg-[#CBA6F7]"></span>
+            <span>Roll:</span>
+            <span id="wf-val-roll" class="font-black text-white">0°</span>
+          </button>
+          <!-- Sway -->
+          <button id="btn-ch-sway" onclick="toggleStudioWaveformChannel('sway')" class="px-2 py-0.5 rounded-md border border-[#A6E3A1]/60 bg-[#A6E3A1]/15 text-[#A6E3A1] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Dynamic Sway Acceleration (Lateral Force, ±10 m/s²)">
+            <span class="w-2 h-2 rounded-full bg-[#A6E3A1]"></span>
+            <span>Sway:</span>
+            <span id="wf-val-sway" class="font-black text-white">0.0</span>
+          </button>
+          <!-- Magnitude -->
+          <button id="btn-ch-mag" onclick="toggleStudioWaveformChannel('mag')" class="px-2 py-0.5 rounded-md border border-[#FAB387]/60 bg-[#FAB387]/15 text-[#FAB387] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Dynamic Magnitude (|M| - 9.8, Dynamic Shock, 0-15 m/s²)">
+            <span class="w-2 h-2 rounded-full bg-[#FAB387]"></span>
+            <span>|M| Shock:</span>
+            <span id="wf-val-mag" class="font-black text-white">0.0</span>
+          </button>
+          <!-- Surge (Ax) -->
+          <button id="btn-ch-surge" onclick="toggleStudioWaveformChannel('surge')" class="px-2 py-0.5 rounded-md border border-[#F38BA8]/60 bg-[#F38BA8]/15 text-[#F38BA8] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Surge Acceleration Ax (Anterior-Posterior Linear Force, ±20 m/s²)">
+            <span class="w-2 h-2 rounded-full bg-[#F38BA8]"></span>
+            <span>Ax (Surge):</span>
+            <span id="wf-val-surge" class="font-black text-white">0.0</span>
+          </button>
+          <!-- Heave (Az) -->
+          <button id="btn-ch-heave" onclick="toggleStudioWaveformChannel('heave')" class="px-2 py-0.5 rounded-md border border-[#89DCEB]/60 bg-[#89DCEB]/15 text-[#89DCEB] font-bold flex items-center gap-1.5 transition hover:brightness-110 active:scale-95" title="Toggle Dynamic Heave Acceleration Az (Vertical Linear Force, ±20 m/s²)">
+            <span class="w-2 h-2 rounded-full bg-[#89DCEB]"></span>
+            <span>Az (Heave):</span>
+            <span id="wf-val-heave" class="font-black text-white">0.0</span>
+          </button>
+        </div>
+        <div class="flex items-center gap-1.5 text-[9px] text-[#6C7086]">
+          <button onclick="toggleAllStudioWaveformChannels(true)" class="hover:text-[#CDD6F4] underline">All On</button>
+          <span>•</span>
+          <button onclick="toggleAllStudioWaveformChannels(false)" class="hover:text-[#CDD6F4] underline">All Off</button>
+        </div>
+      </div>
+
+      <!-- Waveform Canvas & Interactive Scrubber Container -->
+      <div id="studio-waveform-container" class="relative w-full rounded-lg bg-[#181825] border border-[#313244] shadow-sm select-none cursor-crosshair overflow-hidden" onmousedown="onStudioWaveformCanvasMouseDown(event)">
+        <canvas id="studio-waveform-canvas" width="800" height="180" class="w-full h-44 block"></canvas>
+        <!-- Overlay Playhead Line for Scrubber Mode -->
+        <div id="studio-wf-playhead" class="absolute top-0 bottom-0 pointer-events-none hidden transition-transform duration-75" style="left: 0px; width: 2px; background: #F5E0DC; box-shadow: 0 0 8px #F5E0DC, 0 0 16px #89B4FA;">
+          <div class="absolute -top-1 -left-1.5 w-4 h-3 bg-[#F5E0DC] text-[#11111B] rounded-sm text-[8px] font-bold flex items-center justify-center shadow">▼</div>
+        </div>
+      </div>
+
+      <!-- Scrubber Transport Controls Toolbar -->
+      <div id="studio-wf-scrubber-toolbar" class="bg-[#181825] border border-[#313244] rounded-lg px-2.5 py-1.5 flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-1.5">
+          <!-- Play / Pause -->
+          <button id="btn-wf-scrub-play" onclick="toggleStudioWaveformPlayback()" class="px-2.5 py-1 rounded bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] font-bold text-xs flex items-center gap-1 transition active:scale-95" title="Play / Pause buffer animation">
+            <span id="wf-scrub-play-icon">▶</span> <span id="wf-scrub-play-label">Play</span>
+          </button>
+          <!-- Step -1F -->
+          <button onclick="stepStudioWaveform(-1)" class="px-2 py-1 rounded bg-[#252538] hover:bg-[#313244] text-[#A6ADC8] hover:text-[#CDD6F4] font-mono text-xs transition active:scale-95" title="Step Back 1 Frame (-20ms)">
+            ⏮ -1F
+          </button>
+          <!-- Step +1F -->
+          <button onclick="stepStudioWaveform(1)" class="px-2 py-1 rounded bg-[#252538] hover:bg-[#313244] text-[#A6ADC8] hover:text-[#CDD6F4] font-mono text-xs transition active:scale-95" title="Step Forward 1 Frame (+20ms)">
+            ⏭ +1F
+          </button>
+          <!-- Loop Toggle -->
+          <button id="btn-wf-scrub-loop" onclick="toggleStudioWaveformLoop()" class="px-2 py-1 rounded bg-[#89B4FA]/20 border border-[#89B4FA]/40 text-[#89B4FA] font-semibold text-xs flex items-center gap-1 transition active:scale-95" title="Toggle Loop Playback">
+            🔁 Loop
+          </button>
+          <!-- Playback Speed -->
+          <select id="sel-wf-scrub-speed" onchange="setStudioWaveformSpeed(parseFloat(this.value))" class="bg-[#11111B] border border-[#313244] text-[#A6ADC8] text-[11px] rounded px-1.5 py-0.5 outline-none font-mono">
+            <option value="1.0">1.0x</option>
+            <option value="0.5">0.5x</option>
+            <option value="0.25">0.25x</option>
+          </select>
+        </div>
+
+        <!-- Scrubber Range Slider -->
+        <div class="flex-1 min-w-[200px] flex items-center gap-2">
+          <input type="range" id="studio-wf-slider" min="0" max="119" value="119" step="1" class="w-full h-1.5 bg-[#313244] rounded-lg appearance-none cursor-pointer accent-[#89B4FA]" oninput="onStudioWaveformSliderInput(this.value)">
+        </div>
+
+        <!-- Dual Scale Legend Indicator -->
+        <div class="text-[9px] text-[#6C7086] font-mono flex items-center gap-2 whitespace-nowrap">
+          <span class="text-[#89B4FA]">Left: ±90° (Tilt)</span>
+          <span>•</span>
+          <span class="text-[#FAB387]">Right: ±20 m/s² (Accel)</span>
+        </div>
       </div>
     </div>
 
@@ -2273,8 +2371,8 @@ body {
 const urlParams = new URLSearchParams(window.location.search);
 
 window.SCOOBY_CONFIG = Object.assign({
-  appName: urlParams.get('app') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.appName) || "AllyAACUI",
-  tagline: urlParams.get('tagline') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.tagline) || "Canonical Multi-Modal Multiplexing AAC & Gesture Studio",
+  appName: urlParams.get('app') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.appName) || "AllyAAC-Windows",
+  tagline: urlParams.get('tagline') || (window.SCOOBY_CONFIG && window.SCOOBY_CONFIG.tagline) || "Movesense 9-DoF BLE & MediaPipe Hand Tracking (Multi-Modal AAC)",
   platform: "Multi-Modal Desktop & Tablet • 1250×700",
   sensorThresholds: {
     pitchThresh: 25,
@@ -3764,6 +3862,25 @@ let reachState = {
   maxDiagonalCm: 0.0
 };
 
+// 6-Channel Kinematic Waveform Canvas & Scrubber State
+let studioWaveformMode = 'live'; // 'live' | 'scrub'
+const studioWaveformChannels = {
+  pitch: true,
+  roll: true,
+  sway: true,
+  mag: true,
+  surge: true,
+  heave: true
+};
+const studioWaveformScrub = {
+  currentIndex: 119,
+  isPlaying: false,
+  playTimer: null,
+  isLooping: true,
+  speed: 1.0,
+  isDragging: false
+};
+
 function autoCalibrateArmLength() {
   // If camera vision landmarks exist (Shoulder = 11/12, Wrist = 15/16)
   if (typeof visionState !== 'undefined' && visionState.landmarks && visionState.landmarks.length >= 17) {
@@ -4212,6 +4329,25 @@ function updateStudioVisuals(accel, tilt, detected) {
   });
   if (studioHistory.length > MAX_STUDIO_HISTORY) studioHistory.shift();
 
+  // If in live mode, keep scrubber synced to the latest sample and update live badges
+  if (studioWaveformMode === 'live') {
+    studioWaveformScrub.currentIndex = Math.max(0, studioHistory.length - 1);
+    const slider = document.getElementById('studio-wf-slider');
+    if (slider) {
+      slider.max = Math.max(1, studioHistory.length - 1);
+      slider.value = studioWaveformScrub.currentIndex;
+    }
+    const sampleRateEl = document.getElementById('studio-sample-rate');
+    if (sampleRateEl && !isStudioRecording) {
+      sampleRateEl.textContent = `${studioHistory.length} Samples`;
+    }
+    const timeEl = document.getElementById('studio-wf-timecode');
+    if (timeEl) timeEl.textContent = '0.0s (Live)';
+    if (studioHistory.length > 0) {
+      updateStudioWaveformBadges(studioHistory[studioHistory.length - 1]);
+    }
+  }
+
   if (isStudioRecording) {
     studioRecordSession.push({
       accel: { ...accel },
@@ -4269,12 +4405,278 @@ function updateStudioVisuals(accel, tilt, detected) {
   }
 }
 
+function setStudioWaveformMode(mode) {
+  studioWaveformMode = mode;
+  const btnLive = document.getElementById('btn-wf-mode-live');
+  const btnScrub = document.getElementById('btn-wf-mode-scrub');
+  const led = document.getElementById('studio-wf-mode-led');
+  const playheadOverlay = document.getElementById('studio-wf-playhead');
+
+  if (mode === 'live') {
+    if (studioWaveformScrub.isPlaying) {
+      toggleStudioWaveformPlayback(false);
+    }
+    if (btnLive) {
+      btnLive.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-[#89B4FA] text-[#11111B] transition active:scale-95 flex items-center gap-1 shadow-sm';
+    }
+    if (btnScrub) {
+      btnScrub.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1';
+    }
+    if (led) {
+      led.className = 'w-2.5 h-2.5 rounded-full bg-[#F38BA8] animate-pulse';
+    }
+    if (playheadOverlay) playheadOverlay.classList.add('hidden');
+    studioWaveformScrub.currentIndex = Math.max(0, studioHistory.length - 1);
+    const slider = document.getElementById('studio-wf-slider');
+    if (slider) slider.value = studioWaveformScrub.currentIndex;
+    const timeEl = document.getElementById('studio-wf-timecode');
+    if (timeEl) timeEl.textContent = '0.0s (Live)';
+    if (studioHistory.length > 0) {
+      updateStudioWaveformBadges(studioHistory[studioHistory.length - 1]);
+    }
+  } else {
+    // Scrub mode
+    if (btnScrub) {
+      btnScrub.className = 'px-2 py-0.5 rounded text-[10px] font-bold bg-[#CBA6F7] text-[#11111B] transition active:scale-95 flex items-center gap-1 shadow-sm';
+    }
+    if (btnLive) {
+      btnLive.className = 'px-2 py-0.5 rounded text-[10px] font-bold text-[#A6ADC8] hover:text-[#CDD6F4] transition active:scale-95 flex items-center gap-1';
+    }
+    if (led) {
+      led.className = 'w-2.5 h-2.5 rounded-full bg-[#CBA6F7] shadow-sm';
+    }
+    if (playheadOverlay) playheadOverlay.classList.remove('hidden');
+    syncStudioWaveformScrubberUI();
+  }
+  renderWaveformCanvas();
+}
+
+function toggleStudioWaveformChannel(channel) {
+  if (channel in studioWaveformChannels) {
+    studioWaveformChannels[channel] = !studioWaveformChannels[channel];
+    syncChannelButtonStyles();
+    renderWaveformCanvas();
+  }
+}
+
+function toggleAllStudioWaveformChannels(enable) {
+  Object.keys(studioWaveformChannels).forEach(ch => {
+    studioWaveformChannels[ch] = Boolean(enable);
+  });
+  syncChannelButtonStyles();
+  renderWaveformCanvas();
+}
+
+function syncChannelButtonStyles() {
+  const configs = {
+    pitch: { btnId: 'btn-ch-pitch', color: '#89B4FA' },
+    roll: { btnId: 'btn-ch-roll', color: '#CBA6F7' },
+    sway: { btnId: 'btn-ch-sway', color: '#A6E3A1' },
+    mag: { btnId: 'btn-ch-mag', color: '#FAB387' },
+    surge: { btnId: 'btn-ch-surge', color: '#F38BA8' },
+    heave: { btnId: 'btn-ch-heave', color: '#89DCEB' }
+  };
+  Object.keys(configs).forEach(ch => {
+    const btn = document.getElementById(configs[ch].btnId);
+    if (!btn) return;
+    const active = studioWaveformChannels[ch];
+    const color = configs[ch].color;
+    if (active) {
+      btn.style.borderColor = color + '99';
+      btn.style.backgroundColor = color + '26';
+      btn.style.color = color;
+      btn.style.opacity = '1';
+    } else {
+      btn.style.borderColor = '#313244';
+      btn.style.backgroundColor = '#181825';
+      btn.style.color = '#6C7086';
+      btn.style.opacity = '0.45';
+    }
+  });
+}
+
+function onStudioWaveformSliderInput(val) {
+  const idx = parseInt(val, 10);
+  studioWaveformScrub.currentIndex = Math.max(0, Math.min(studioHistory.length - 1, idx));
+  if (studioWaveformMode !== 'scrub') {
+    setStudioWaveformMode('scrub');
+  } else {
+    syncStudioWaveformScrubberUI();
+    renderWaveformCanvas();
+  }
+}
+
+function stepStudioWaveform(delta) {
+  if (studioWaveformMode !== 'scrub') {
+    setStudioWaveformMode('scrub');
+  }
+  const maxIdx = Math.max(0, studioHistory.length - 1);
+  studioWaveformScrub.currentIndex = Math.max(0, Math.min(maxIdx, studioWaveformScrub.currentIndex + delta));
+  syncStudioWaveformScrubberUI();
+  renderWaveformCanvas();
+}
+
+function toggleStudioWaveformPlayback(forceState) {
+  if (studioWaveformMode !== 'scrub') {
+    setStudioWaveformMode('scrub');
+  }
+  const playIcon = document.getElementById('wf-scrub-play-icon');
+  const playLabel = document.getElementById('wf-scrub-play-label');
+  const btn = document.getElementById('btn-wf-scrub-play');
+
+  if (typeof forceState === 'boolean') {
+    studioWaveformScrub.isPlaying = forceState;
+  } else {
+    studioWaveformScrub.isPlaying = !studioWaveformScrub.isPlaying;
+  }
+
+  if (studioWaveformScrub.playTimer) {
+    clearInterval(studioWaveformScrub.playTimer);
+    studioWaveformScrub.playTimer = null;
+  }
+
+  if (studioWaveformScrub.isPlaying) {
+    if (playIcon) playIcon.textContent = '⏸';
+    if (playLabel) playLabel.textContent = 'Pause';
+    if (btn) btn.className = 'px-2.5 py-1 rounded bg-[#FAB387] text-[#11111B] font-bold text-xs flex items-center gap-1 transition active:scale-95 shadow';
+
+    const intervalMs = Math.round(20 / studioWaveformScrub.speed);
+    studioWaveformScrub.playTimer = setInterval(() => {
+      const maxIdx = Math.max(0, studioHistory.length - 1);
+      if (maxIdx === 0) return;
+      if (studioWaveformScrub.currentIndex >= maxIdx) {
+        if (studioWaveformScrub.isLooping) {
+          studioWaveformScrub.currentIndex = 0;
+        } else {
+          toggleStudioWaveformPlayback(false);
+          return;
+        }
+      } else {
+        studioWaveformScrub.currentIndex++;
+      }
+      syncStudioWaveformScrubberUI();
+      renderWaveformCanvas();
+    }, intervalMs);
+  } else {
+    if (playIcon) playIcon.textContent = '▶';
+    if (playLabel) playLabel.textContent = 'Play';
+    if (btn) btn.className = 'px-2.5 py-1 rounded bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] font-bold text-xs flex items-center gap-1 transition active:scale-95';
+  }
+}
+
+function setStudioWaveformSpeed(spd) {
+  studioWaveformScrub.speed = spd || 1.0;
+  if (studioWaveformScrub.isPlaying) {
+    toggleStudioWaveformPlayback(true);
+  }
+}
+
+function toggleStudioWaveformLoop() {
+  studioWaveformScrub.isLooping = !studioWaveformScrub.isLooping;
+  const btn = document.getElementById('btn-wf-scrub-loop');
+  if (btn) {
+    if (studioWaveformScrub.isLooping) {
+      btn.className = 'px-2 py-1 rounded bg-[#89B4FA]/20 border border-[#89B4FA]/40 text-[#89B4FA] font-semibold text-xs flex items-center gap-1 transition active:scale-95';
+    } else {
+      btn.className = 'px-2 py-1 rounded bg-[#252538] border border-[#313244] text-[#6C7086] font-semibold text-xs flex items-center gap-1 transition active:scale-95';
+    }
+  }
+}
+
+function onStudioWaveformCanvasMouseDown(e) {
+  const container = document.getElementById('studio-waveform-container');
+  if (!container || studioHistory.length === 0) return;
+
+  function updateScrubPos(clientX) {
+    const rect = container.getBoundingClientRect();
+    const leftMargin = 36;
+    const rightMargin = 36;
+    const chartW = rect.width - leftMargin - rightMargin;
+    const clickX = clientX - rect.left - leftMargin;
+    const ratio = Math.max(0, Math.min(1, clickX / chartW));
+    const maxIdx = Math.max(0, studioHistory.length - 1);
+    studioWaveformScrub.currentIndex = Math.round(ratio * maxIdx);
+    if (studioWaveformMode !== 'scrub') {
+      setStudioWaveformMode('scrub');
+    } else {
+      syncStudioWaveformScrubberUI();
+      renderWaveformCanvas();
+    }
+  }
+
+  updateScrubPos(e.clientX);
+
+  function onMouseMove(ev) {
+    updateScrubPos(ev.clientX);
+  }
+
+  function onMouseUp() {
+    window.removeEventListener('mousemove', onMouseMove);
+    window.removeEventListener('mouseup', onMouseUp);
+  }
+
+  window.addEventListener('mousemove', onMouseMove);
+  window.addEventListener('mouseup', onMouseUp);
+}
+
+function syncStudioWaveformScrubberUI() {
+  const maxIdx = Math.max(0, studioHistory.length - 1);
+  const curIdx = Math.max(0, Math.min(maxIdx, studioWaveformScrub.currentIndex));
+
+  const slider = document.getElementById('studio-wf-slider');
+  if (slider) {
+    slider.max = maxIdx;
+    slider.value = curIdx;
+  }
+
+  // Update DOM overlay playhead position
+  const playhead = document.getElementById('studio-wf-playhead');
+  const container = document.getElementById('studio-waveform-container');
+  if (playhead && container && maxIdx > 0) {
+    const rect = container.getBoundingClientRect();
+    const leftMargin = 36;
+    const rightMargin = 36;
+    const chartW = rect.width - leftMargin - rightMargin;
+    const px = leftMargin + (curIdx / maxIdx) * chartW;
+    playhead.style.left = `${px}px`;
+  }
+
+  // Update Timecode
+  const timeEl = document.getElementById('studio-wf-timecode');
+  if (timeEl) {
+    const tOffset = -((maxIdx - curIdx) * 0.02);
+    timeEl.textContent = `${tOffset.toFixed(2)}s (${curIdx + 1}/${maxIdx + 1})`;
+  }
+
+  // Update telemetry badges with the scrubbed frame values
+  if (studioHistory[curIdx]) {
+    updateStudioWaveformBadges(studioHistory[curIdx]);
+  }
+}
+
+function updateStudioWaveformBadges(s) {
+  if (!s) return;
+  const pEl = document.getElementById('wf-val-pitch');
+  const rEl = document.getElementById('wf-val-roll');
+  const swEl = document.getElementById('wf-val-sway');
+  const mEl = document.getElementById('wf-val-mag');
+  const axEl = document.getElementById('wf-val-surge');
+  const azEl = document.getElementById('wf-val-heave');
+
+  if (pEl) pEl.textContent = Math.round(s.pitch || 0) + '°';
+  if (rEl) rEl.textContent = Math.round(s.roll || 0) + '°';
+  if (swEl) swEl.textContent = (s.sway || 0).toFixed(1);
+  if (mEl) mEl.textContent = Math.max(0, (s.mag || 9.8) - 9.8).toFixed(1);
+  if (axEl) axEl.textContent = (s.x || 0).toFixed(1);
+  if (azEl) azEl.textContent = ((s.z || 9.8) - 9.8).toFixed(1);
+}
+
 function renderWaveformCanvas() {
   const primaryCanvas = document.getElementById('studio-waveform-canvas');
   const annotatorCanvas = document.getElementById('annotator-live-waveform-canvas');
   const canvases = [primaryCanvas, annotatorCanvas].filter(Boolean);
 
-  if (canvases.length === 0 || studioHistory.length < 2) return;
+  if (canvases.length === 0) return;
 
   canvases.forEach(canvas => {
     // Skip if hidden or unattached
@@ -4287,69 +4689,169 @@ function renderWaveformCanvas() {
     ctx.fillStyle = '#181825';
     ctx.fillRect(0, 0, w, h);
 
+    const isPrimary = (canvas === primaryCanvas);
+    const leftMargin = isPrimary ? 36 : 28;
+    const rightMargin = isPrimary ? 36 : 10;
+    const chartW = w - leftMargin - rightMargin;
+    const amp = (h / 2) * 0.82;
+
     // 1. Draw Horizontal Zero & Scale Guideline Grids
-    ctx.strokeStyle = '#313244';
+    ctx.strokeStyle = '#45475A';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(0, midY); ctx.lineTo(w, midY);
-    ctx.moveTo(0, midY - 35); ctx.lineTo(w, midY - 35);
-    ctx.moveTo(0, midY + 35); ctx.lineTo(w, midY + 35);
+    ctx.moveTo(leftMargin, midY);
+    ctx.lineTo(leftMargin + chartW, midY);
     ctx.stroke();
 
+    ctx.strokeStyle = '#313244';
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.moveTo(leftMargin, midY - amp * 0.5);
+    ctx.lineTo(leftMargin + chartW, midY - amp * 0.5);
+    ctx.moveTo(leftMargin, midY + amp * 0.5);
+    ctx.lineTo(leftMargin + chartW, midY + amp * 0.5);
+    ctx.moveTo(leftMargin, midY - amp);
+    ctx.lineTo(leftMargin + chartW, midY - amp);
+    ctx.moveTo(leftMargin, midY + amp);
+    ctx.lineTo(leftMargin + chartW, midY + amp);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
     // 2. Draw Calibrated Time Ticks & Time Labels (-2.4s to 0.0s / Now)
-    // MAX_STUDIO_HISTORY is 120 samples @ 50Hz = 2.40s duration
     const totalDurationSec = 2.4;
-    const timeDivisions = 4; // 0.6s increments: -2.4s, -1.8s, -1.2s, -0.6s, 0.0s
+    const timeDivisions = 4;
     ctx.fillStyle = '#6C7086';
     ctx.font = '9px monospace';
     ctx.textAlign = 'center';
 
     for (let div = 0; div <= timeDivisions; div++) {
-      const tx = (div / timeDivisions) * (w - 40) + 30; // inset slightly for Y-axis scale
-      // Tick line
+      const tx = leftMargin + (div / timeDivisions) * chartW;
       ctx.strokeStyle = '#313244';
       ctx.setLineDash([2, 2]);
       ctx.beginPath();
       ctx.moveTo(tx, 0);
-      ctx.lineTo(tx, h - 16);
+      ctx.lineTo(tx, h - 14);
       ctx.stroke();
       ctx.setLineDash([]);
 
-      // Time label
       const timeOffset = -(totalDurationSec - (div / timeDivisions) * totalDurationSec);
       const timeText = div === timeDivisions ? '0.0s (Now)' : `${timeOffset.toFixed(1)}s`;
-      ctx.fillText(timeText, tx, h - 4);
+      ctx.fillText(timeText, tx, h - 3);
     }
 
-    // 3. Y-Axis Scale Markers on Left (+15, 0, -15 m/s²)
-    ctx.fillStyle = '#585B70';
+    // 3. Y-Axis Scale Markers
+    // Left Y-Axis: Inclinometer Angles (±90°)
+    ctx.fillStyle = '#89B4FA';
     ctx.textAlign = 'left';
-    ctx.fillText('+15', 4, midY - 32);
-    ctx.fillText('0', 4, midY + 3);
-    ctx.fillText('-15', 4, midY + 38);
+    ctx.fillText('+90°', 2, midY - amp + 4);
+    ctx.fillStyle = '#585B70';
+    ctx.fillText('+45°', 2, midY - amp * 0.5 + 3);
+    ctx.fillText('0°', 4, midY + 3);
+    ctx.fillText('-45°', 2, midY + amp * 0.5 + 3);
+    ctx.fillStyle = '#89B4FA';
+    ctx.fillText('-90°', 2, midY + amp + 2);
 
-    // 4. Waveform Traces
-    const step = (w - 30) / (MAX_STUDIO_HISTORY - 1);
-    const scale = 2.4; // pixel per m/s²
+    // Right Y-Axis: Dynamic Acceleration (±20 m/s²)
+    if (isPrimary) {
+      ctx.textAlign = 'right';
+      ctx.fillStyle = '#FAB387';
+      ctx.fillText('+20', w - 2, midY - amp + 4);
+      ctx.fillStyle = '#585B70';
+      ctx.fillText('+10', w - 2, midY - amp * 0.5 + 3);
+      ctx.fillText('0', w - 4, midY + 3);
+      ctx.fillText('-10', w - 2, midY + amp * 0.5 + 3);
+      ctx.fillStyle = '#FAB387';
+      ctx.fillText('-20', w - 2, midY + amp + 2);
+    }
 
-    function drawTrace(getter, strokeColor) {
+    if (studioHistory.length < 2) {
+      ctx.fillStyle = '#585B70';
+      ctx.font = '11px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('Awaiting sensor stream or continuous simulation (50Hz)...', w / 2, midY + 4);
+      return;
+    }
+
+    const n = studioHistory.length;
+    const xForIndex = (i) => leftMargin + (i * (chartW / (Math.max(2, n) - 1)));
+
+    // Channel Traces
+    function drawTrace(getter, strokeColor, lineWidth = 1.8) {
       ctx.strokeStyle = strokeColor;
-      ctx.lineWidth = 1.8;
+      ctx.lineWidth = lineWidth;
       ctx.beginPath();
-      for (let i = 0; i < studioHistory.length; i++) {
-        const px = 30 + (i * step);
+      for (let i = 0; i < n; i++) {
+        const px = xForIndex(i);
         const val = getter(studioHistory[i]);
-        const py = midY - (val * scale);
+        const py = Math.max(4, Math.min(h - 4, midY - (val * amp)));
         if (i === 0) ctx.moveTo(px, py);
         else ctx.lineTo(px, py);
       }
       ctx.stroke();
     }
 
-    drawTrace(s => s.x, '#F38BA8'); // X Accel
-    drawTrace(s => s.y, '#A6E3A1'); // Y Accel
-    drawTrace(s => s.z, '#89B4FA'); // Z Accel
-    drawTrace(s => s.mag - 9.8, '#FAB387'); // Dynamic surge magnitude
+    // 1. Pitch: normalizer val / 90
+    if (studioWaveformChannels.pitch) {
+      drawTrace(s => (s.pitch || 0) / 90, '#89B4FA', 2.0);
+    }
+    // 2. Roll: normalizer val / 90
+    if (studioWaveformChannels.roll) {
+      drawTrace(s => (s.roll || 0) / 90, '#CBA6F7', 1.8);
+    }
+    // 3. Sway: lateral dynamic force, normalizer val / 10
+    if (studioWaveformChannels.sway) {
+      drawTrace(s => (s.sway || 0) / 10, '#A6E3A1', 1.8);
+    }
+    // 4. Magnitude Dynamic (|M| - 9.8): normalizer (mag - 9.8) / 15
+    if (studioWaveformChannels.mag) {
+      drawTrace(s => ((s.mag || 9.8) - 9.8) / 15, '#FAB387', 2.0);
+    }
+    // 5. Surge (Ax): anterior-posterior, normalizer val / 20
+    if (studioWaveformChannels.surge) {
+      drawTrace(s => (s.x || 0) / 20, '#F38BA8', 1.8);
+    }
+    // 6. Heave (Az dynamic: Az - 9.8): normalizer (Az - 9.8) / 20
+    if (studioWaveformChannels.heave) {
+      drawTrace(s => ((s.z || 9.8) - 9.8) / 20, '#89DCEB', 1.8);
+    }
+
+    // 5. Scrubber Mode & Primary Canvas: Draw Playhead cursor & dots
+    if (isPrimary && studioWaveformMode === 'scrub' && n > 0) {
+      const scrubIdx = Math.max(0, Math.min(n - 1, studioWaveformScrub.currentIndex));
+      const scrubX = xForIndex(scrubIdx);
+      const curSample = studioHistory[scrubIdx];
+
+      // Playhead vertical line
+      ctx.strokeStyle = '#F5E0DC';
+      ctx.lineWidth = 2;
+      ctx.shadowColor = '#89B4FA';
+      ctx.shadowBlur = 8;
+      ctx.beginPath();
+      ctx.moveTo(scrubX, 0);
+      ctx.lineTo(scrubX, h);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      function drawDot(valNorm, dotColor) {
+        const dotY = Math.max(4, Math.min(h - 4, midY - (valNorm * amp)));
+        ctx.fillStyle = dotColor;
+        ctx.beginPath();
+        ctx.arc(scrubX, dotY, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = '#11111B';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      if (curSample) {
+        if (studioWaveformChannels.pitch) drawDot((curSample.pitch || 0) / 90, '#89B4FA');
+        if (studioWaveformChannels.roll) drawDot((curSample.roll || 0) / 90, '#CBA6F7');
+        if (studioWaveformChannels.sway) drawDot((curSample.sway || 0) / 10, '#A6E3A1');
+        if (studioWaveformChannels.mag) drawDot(((curSample.mag || 9.8) - 9.8) / 15, '#FAB387');
+        if (studioWaveformChannels.surge) drawDot((curSample.x || 0) / 20, '#F38BA8');
+        if (studioWaveformChannels.heave) drawDot(((curSample.z || 9.8) - 9.8) / 20, '#89DCEB');
+      }
+    }
   });
 }
 
@@ -4525,11 +5027,16 @@ function clearStudioBuffer() {
   if (typeof videoSyncState !== 'undefined') {
     videoSyncState.activeSession = null;
   }
-  const canvas = document.getElementById('studio-waveform-canvas');
-  if (canvas) {
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  studioWaveformScrub.currentIndex = 0;
+  if (studioWaveformScrub.isPlaying) {
+    toggleStudioWaveformPlayback(false);
   }
+  const slider = document.getElementById('studio-wf-slider');
+  if (slider) { slider.max = 0; slider.value = 0; }
+  const timeEl = document.getElementById('studio-wf-timecode');
+  if (timeEl) timeEl.textContent = '0.0s (Live)';
+  updateStudioWaveformBadges({ pitch: 0, roll: 0, sway: 0, mag: 9.8, x: 0, z: 9.8 });
+  renderWaveformCanvas();
   const sampleRateEl = document.getElementById('studio-sample-rate');
   if (sampleRateEl) sampleRateEl.textContent = '0 Samples';
 }
@@ -5768,15 +6275,23 @@ function renderScrubberTimelineTrack() {
     ctx.fillText(`${tSec.toFixed(2)}s`, tx, h - 3);
   }
 
-  // Y-Scale Guides on far left
-  ctx.fillStyle = '#585B70';
+  // Dual-Axis Scale Guides
+  ctx.fillStyle = '#89B4FA';
   ctx.textAlign = 'left';
-  ctx.fillText('+15', 3, midY - 26);
+  ctx.fillText('+90°', 3, midY - 32);
+  ctx.fillStyle = '#585B70';
   ctx.fillText('0', 3, midY + 3);
-  ctx.fillText('-15', 3, midY + 32);
+  ctx.fillStyle = '#89B4FA';
+  ctx.fillText('-90°', 3, midY + 36);
 
-  const step = w / (samples.length - 1);
-  const scale = 2.2;
+  ctx.fillStyle = '#FAB387';
+  ctx.textAlign = 'right';
+  ctx.fillText('+20', w - 3, midY - 32);
+  ctx.fillStyle = '#FAB387';
+  ctx.fillText('-20', w - 3, midY + 36);
+
+  const step = w / Math.max(1, samples.length - 1);
+  const amp = (h / 2) * 0.78;
 
   function drawWaveform(getter, color, width = 1.6) {
     ctx.strokeStyle = color;
@@ -5785,17 +6300,25 @@ function renderScrubberTimelineTrack() {
     for (let i = 0; i < samples.length; i++) {
       const px = i * step;
       const val = getter(samples[i]);
-      const py = midY - (val * scale);
+      const py = Math.max(2, Math.min(h - 2, midY - (val * amp)));
       if (i === 0) ctx.moveTo(px, py);
       else ctx.lineTo(px, py);
     }
     ctx.stroke();
   }
 
-  drawWaveform(s => s.ax, '#F38BA8');          // Ax
-  drawWaveform(s => s.ay, '#A6E3A1');          // Ay
-  drawWaveform(s => s.az, '#89B4FA');          // Az
-  drawWaveform(s => s.mag - 9.8, '#FAB387', 2); // Dynamic surge |M| - 1G
+  // 1. Pitch (forearm elevation, -90° to +90°)
+  drawWaveform(s => (s.pitch || 0) / 90, '#89B4FA', 1.8);
+  // 2. Roll (supination/pronation, -90° to +90°)
+  drawWaveform(s => (s.roll || 0) / 90, '#CBA6F7', 1.6);
+  // 3. Dynamic Sway (lateral force, ±10 m/s²)
+  drawWaveform(s => (s.sway || 0) / 10, '#A6E3A1', 1.6);
+  // 4. Dynamic Surge Shock (|M| - 9.8, 0 to 15 m/s²)
+  drawWaveform(s => ((s.mag || 9.8) - 9.8) / 15, '#FAB387', 2.0);
+  // 5. Ax Surge (anterior-posterior force, ±20 m/s²)
+  drawWaveform(s => (s.ax || 0) / 20, '#F38BA8', 1.6);
+  // 6. Az Heave (vertical dynamic force, ±20 m/s²)
+  drawWaveform(s => ((s.az || 9.8) - 9.8) / 20, '#89DCEB', 1.6);
 }
 
 function renderSyntheticVideoFrame(ratio) {
@@ -6178,5 +6701,46 @@ function clearPwaCacheAndReload() {
 }
 
   </script>
+  <!-- Hardware Telemetry & WPF IPC Integration -->
+  <script>
+    // Listen for Host telemetry and gesture events
+    if (window.chrome && window.chrome.webview) {
+      window.chrome.webview.addEventListener('message', event => {
+        const msg = event.data;
+        if (!msg) return;
+
+        if (msg.type === 'GESTURE_RECOGNIZED' && msg.word) {
+          if (typeof addWordToActiveMessage === 'function') addWordToActiveMessage(msg.word);
+          if (msg.autoSpeak && typeof speakCurrentText === 'function') speakCurrentText();
+        } else if (msg.type === 'PINCH_DETECTED') {
+          if (typeof speakCurrentText === 'function') speakCurrentText();
+        } else if (msg.type === 'BLE_STATE_CHANGED') {
+          const bleStatus = document.getElementById('gf-ble-status');
+          const bleDot = document.getElementById('gf-ble-dot');
+          const blePing = document.getElementById('gf-ble-ping');
+          if (bleStatus) bleStatus.innerText = msg.connected ? (msg.device || 'Movesense Connected') : 'Movesense Disconnected';
+          if (bleDot) bleDot.className = msg.connected ? 'relative inline-flex rounded-full h-2.5 w-2.5 bg-[#A6E3A1]' : 'relative inline-flex rounded-full h-2.5 w-2.5 bg-[#F38BA8]';
+          if (blePing) blePing.className = msg.connected ? 'animate-ping absolute inline-flex h-full w-full rounded-full bg-[#A6E3A1] opacity-75' : 'hidden';
+        } else if (msg.type === 'VISION_STATE_CHANGED') {
+          const visionStatus = document.getElementById('gf-vision-status');
+          if (visionStatus) {
+            visionStatus.innerText = msg.active ? 'MediaPipe Active' : 'Camera Off';
+            visionStatus.className = msg.active ? 'text-[#A6E3A1] text-xs font-semibold' : 'text-[#BAC2DE] text-xs font-semibold';
+          }
+        }
+      });
+    }
+
+    // Notify Host when words or speech change
+    window.addEventListener('scooby:text-changed', (e) => {
+      if (window.chrome && window.chrome.webview) {
+        window.chrome.webview.postMessage({
+          type: 'GESTUREFLOW_TEXT_CHANGED',
+          text: e.detail ? e.detail.text : ''
+        });
+      }
+    });
+  </script>
+
 </body>
 </html>
