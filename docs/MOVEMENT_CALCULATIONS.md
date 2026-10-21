@@ -1,11 +1,11 @@
 # AllyAAC IMU Movement Calculation & Telemetry Physics Specification
 
 * **Document**: `MOVEMENT_CALCULATIONS.md`
-* **Version**: 1.0.0
-* **Date**: October 13, 2026
-* **Status**: Implemented & Production Deployed (`v3.0.7`)
+* **Version**: 1.1.0
+* **Date**: October 20, 2026
+* **Status**: Implemented & Production Deployed (`v3.1.8`)
 * **Target Platforms**: Web/PWA, Windows Desktop (WPF/WebView2), Android Kiosk
-* **Applies To**: Gesture Studio Workbench, Inclinometer Gauges, Oscilloscope, Annotator Scrubber
+* **Applies To**: Gesture Studio Workbench, Inclinometer Gauges, 6-Channel Waveform Canvas & Scrubber, Settings Diagnostic Inspector (`Alt + D`), Annotator Scrubber
 
 ---
 
@@ -82,16 +82,16 @@ A major question in clinical posturography and upper-limb biomechanics is: **Can
 
 **Yes.** In clinical posturography, "Sway" refers to voluntary or involuntary displacement away from postural equilibrium. AllyAAC implements three distinct formulations depending on whether the objective is gesture triggering, spasm rejection, or clinical stability assessment:
 
-### 4.1 Instantaneous Dynamic Lateral Sway ($\text{Sway}_{\text{dynamic}}$)
-When the arm is tilted, a portion of static gravity leaks into the lateral $A_y$ axis according to:
-$$A_{y,\text{gravity}} = g \cdot \sin(\text{Roll})$$
+### 4.1 Instantaneous 3D Gravity-Compensated Lateral Sway ($\text{Sway}_{\text{dynamic}}$)
+When the forearm is tilted in 3D space (both Pitch $\theta$ and Roll $\phi$), static Earth gravity projects onto the lateral $A_y$ axis according to:
+$$A_{y,\text{gravity}} = g \cdot \cos(\theta) \cdot \sin(\phi)$$
 
-To isolate the **true voluntary lateral movement** from static wrist tilt:
-$$\text{Sway}_{\text{dynamic}}(t) = A_y(t) - 9.8 \cdot \sin\left(\text{Roll} \cdot \frac{\pi}{180}\right)$$
+To isolate **true voluntary lateral movement** from static 3D wrist/forearm tilt:
+$$\text{Sway}_{\text{dynamic}}(t) = A_y(t) - 9.80665 \cdot \cos\left(\theta \cdot \frac{\pi}{180}\right) \cdot \sin\left(\phi \cdot \frac{\pi}{180}\right)$$
 
-* **Resting at any angle**: $\text{Sway}_{\text{dynamic}} \approx 0.0\,\text{m/s}^2$.
+* **Resting at any 3D angle**: $\text{Sway}_{\text{dynamic}} \approx 0.0\,\text{m/s}^2$.
 * **Lateral Swipe / Wave**: Creates an immediate non-zero excursion ($\pm 2 \text{ to } \pm 15\,\text{m/s}^2$).
-* **Instrument Representation**: Drives the **`SWAY` needle** on the Inclinometer Gauges (`#dial-sway-needle`) with $\pm 90^\circ$ deflection.
+* **Instrument Representation**: Drives the **`SWAY` needle** on the Inclinometer Gauges (`#dial-sway-needle`) and Channel 3 of the 6-Channel Waveform Canvas.
 
 ### 4.2 RMS Postural Sway (Root Mean Square)
 Used to evaluate involuntary motor tremors, ataxia, or ambient wheelchair motor noise over a sliding time window of $N$ samples (e.g., $N=100$ samples = 2.0 seconds at 50 Hz):
@@ -113,23 +113,31 @@ This metric provides clinicians with a quantifiable index of motor control fatig
 
 ---
 
-## 5. Magnitude & Dynamic Surge Shockwave
+## 5. Magnitude, Dynamic Shockwave & 3D Gravity-Compensated Heave
 
 ### 5.1 Total Acceleration Magnitude ($|M|$)
 The scalar Euclidean norm across all 3 orthogonal axes:
 
 $$|M| = \sqrt{A_x^2 + A_y^2 + A_z^2}$$
 
-* At rest in **any** arbitrary 3D orientation, $|M| = 9.80\,\text{m/s}^2 \ (1.0\text{G})$.
+* At rest in **any** arbitrary 3D orientation, $|M| = 9.80665\,\text{m/s}^2 \ (1.0\text{G})$.
 
-### 5.2 Dynamic Surge Magnitude ($|M| - 9.8$)
-By subtracting the $1.0\text{G}$ gravitational bias, we obtain pure dynamic shock energy:
+### 5.2 Dynamic Shockwave Magnitude ($||M| - 9.8|$)
+By taking the absolute deviation from the $1.0\text{G}$ gravitational bias, we capture both compressive impact spikes and unloading/free-fall shockwaves symmetrically:
 
-$$\text{Surge} = |M| - 9.80\,\text{m/s}^2$$
+$$\text{Shock}_{|M|} = \left| |M| - 9.80\,\text{m/s}^2 \right|$$
 
-* **Resting Baseline**: $\text{Surge} \approx 0.0\,\text{m/s}^2$.
+* **Resting Baseline**: $\text{Shock}_{|M|} \approx 0.0\,\text{m/s}^2$.
 * **Desk Tap / Surface Knock**: Sharp positive spike ($+10 \text{ to } +25\,\text{m/s}^2$).
-* **Oscilloscope / Scrubber Trace**: Rendered as the 🍑 **Orange curve** (`#FAB387`).
+* **6-Channel Waveform / Scrubber Trace**: Rendered as Channel 4, the 🍑 **Peach curve** (`#FAB387`).
+
+### 5.3 3D Gravity-Compensated Vertical Heave ($\text{Heave}_{\text{dynamic}}$)
+When the forearm is pitched ($\theta$) or rolled ($\phi$), the normal $Z$-axis component of static gravity decreases as $g_z = g \cdot \cos(\theta) \cdot \cos(\phi)$. Subtracting a fixed $9.8\,\text{m/s}^2$ would falsely report up to $-9.8\,\text{m/s}^2$ of downward heave when simply tilting the wrist at rest. Therefore, AllyAAC computes true 3D gravity-compensated dynamic heave:
+
+$$\text{Heave}_{\text{dynamic}}(t) = A_z(t) - 9.80665 \cdot \cos\left(\theta \cdot \frac{\pi}{180}\right) \cdot \cos\left(\phi \cdot \frac{\pi}{180}\right)$$
+
+* **Resting at any 3D tilt angle**: $\text{Heave}_{\text{dynamic}} \approx 0.0\,\text{m/s}^2$.
+* **6-Channel Waveform / Scrubber Trace**: Rendered as Channel 6, the 🩵 **Cyan curve** (`#89DCEB`).
 
 ---
 
@@ -172,15 +180,13 @@ $$\Delta z = L \times \left(\sin(\text{Pitch}) - \sin(\text{Pitch}_{\text{rest}}
 The vertical displacement dropping below the calibrated rest position (e.g. reaching toward floor or footrest):
 $$\Delta z_{\text{down}} = \begin{cases} |\Delta z|, & \text{if } \Delta z < 0 \\ 0, & \text{otherwise} \end{cases}$$
 
-### 6.4 Forward Extension Reach ($\Delta x_{\text{fwd}}$)
-The anterior linear travel extending forward from rest toward a table, desk, or screen:
-$$\Delta x = L \times \left(\cos(\text{Pitch}) - \cos(\text{Pitch}_{\text{rest}})\right), \quad \Delta x_{\text{fwd}} = \max(0, \Delta x)$$
+### 6.4 Forward Extension ($\Delta x_{\text{fwd}}$) & Backward Retraction ($\Delta x_{\text{back}}$)
+When calibrated on a flat table or wheelchair tray ($\theta_{\text{rest}} = 0^\circ$), a purely cosine difference $\cos(\theta) - \cos(0^\circ)$ would always be $\le 0$. To ensure responsive bidirectional reach across **all** baseline angles, AllyAAC combines horizontal projection, longitudinal dynamic surge ($A_{x,\text{dyn}} = A_x - g\sin\theta$), and signed pitch arc:
 
-* Quantifies intentional forward reaches toward touchscreens, wheelchair trays, or AAC switches.
+$$\Delta x = L \times (\cos\theta - \cos\theta_{\text{rest}}) + A_{x,\text{dyn}} \times 1.85 + L \times \sin(\theta - \theta_{\text{rest}}) \times 0.35$$
+$$\Delta x_{\text{fwd}} = \max(0, \Delta x), \qquad \Delta x_{\text{back}} = \max(0, -\Delta x)$$
 
-### 6.5 Backward Retraction Reach ($\Delta x_{\text{back}}$)
-The posterior retraction pulling the arm backward towards the torso or backrest:
-$$\Delta x_{\text{back}} = \begin{cases} |\Delta x|, & \text{if } \Delta x < 0 \\ 0, & \text{otherwise} \end{cases}$$
+* Quantifies intentional forward reaches toward touchscreens/switches ($\Delta x_{\text{fwd}}$) and posterior retractions toward the torso ($\Delta x_{\text{back}}$).
 
 ### 6.6 Left Lateral Reach ($\Delta y_{\text{left}}$)
 The lateral sweeping motion directed toward the communicator's left side:
@@ -280,15 +286,38 @@ AllyAAC provides four integrated tools for working with these telemetry streams:
 * Accessible directly inside the web and desktop apps via the **`❓ Help`** sub-tab in Gesture Studio.
 * Provides clinicians, caregivers, and developers with on-device reference cards for physical axes, posturography math, and trigger tuning.
 
+### 5. Settings Menu 6-Point Diagnostic Checklist & Real-Time Telemetry Inspector (`#tab-pane-diagnostics`)
+* **Access Paths**:
+  * **Settings Modal (`⚙️`) → `🩺 Diagnostics` Tab** (`openSettingsModal('diagnostics')`)
+  * **Settings Modal (`⚙️`) → `Hardware` Tab** → **`Run Diagnostic Checklist & Inspector 🩺`**
+  * **Global Keyboard Shortcut**: **`Alt + D`**
+  * **Gesture Studio Quick-Launch**: **`🩺 Inspect`** button in the 6-Channel Waveform Canvas header and inside the **Diagnostics** sub-view.
+* **Live Telemetry Monitor Strip**:
+  * Displays real-time stream source (`Movesense-BLE`, `WebView2-Host`, `50Hz-Sim`, `50Hz-Diagnostic-Sweep`), measured sample rate ($\text{Hz}$), and waveform mode (`LIVE` vs `SCRUB`).
+  * Live 6-channel readout cards (`1. PITCH`, `2. ROLL`, `3. SWAY`, `4. |M| SHOCK`, `5. SURGE Ax`, `6. HEAVE Az`) and 6-direction 3D Reach strip (`⬆ UP`, `⬇ DOWN`, `➡ FWD`, `⬅ BACK`, `◀ LEFT`, `▶ RIGHT`).
+* **The 6 Automated Diagnostic Checks**:
+  1. **Check #1 — 50 Hz Real-Time Telemetry Clock & Source Pipe**: Verifies active streaming frequency ($\ge 18\text{ Hz}$), frame delta ($\Delta t\text{ ms}$), and 120-sample ring buffer health.
+  2. **Check #2 — Raw Accelerometer Vector & Unit Scale ($G$ vs $\text{m/s}^2$)**: Validates Movesense GSP `0x02` multi-sample packet unpacking (`structured-array` at byte offset 7 vs `flat-float` at byte offset 6), automatic $G \rightarrow \text{m/s}^2$ scale normalization, raw $|M|$ bounds, and `NaN` frame guard counters.
+  3. **Check #3 — Inclinometry Angles (`Pitch` $\theta$ & `Roll` $\phi$ Trigonometry)**: Verifies finite 3D $\text{atan2}$ angles within $[-90^\circ, +90^\circ]$ and inspects tare baseline offsets ($\theta_0, \phi_0$).
+  4. **Check #4 — Gravity-Compensated Dynamic Channels (`Sway`, `|M| Shock`, `Surge Ax`, `Heave Az`)**: Confirms 3D static gravity projection removal ($g_y = g\cos\theta\sin\phi$, $g_z = g\cos\theta\cos\phi$) and symmetric shockwave calculation.
+  5. **Check #5 — 6-Direction 3D Spatial Reach Solver (`Up`, `Down`, `Fwd`, `Back`, `Left`, `Right`)**: Validates finite excursion calculations (cm) and peak 3D Euclidean workspace vector tracking.
+  6. **Check #6 — 6-Channel Waveform Canvas, Scrubber Mode & Live Badge Sync**: Detects if the waveform canvas is frozen in `'scrub'` mode or if any of the 6 channel pills are muted.
+* **Interactive Remediation & Verification Controls**:
+  * **`▶ Run Inspection`**: Executes all 6 checks on demand and updates pass/warn/fail badges.
+  * **`⚡ Test 6-Ch Sweep`**: Injects a 3.0-second (150-tick) 50 Hz multi-frequency orthogonal wave exercising all 6 waveform channels and all 6 spatial reach directions in real time.
+  * **`🔧 Auto-Fix & Tare`**: Automatically restores `'live'` waveform mode if stuck in `'scrub'`, enables all 6 channel filters, clears `NaN` drop counters, tares the 3D reach baseline, and launches a verification sweep if idle.
+  * **`📋 Copy Report`**: Copies a structured Markdown diagnostic report to the system clipboard.
+
 ---
 
 ## 9. Summary Formula Reference Card
 
 $$\begin{aligned}
 \text{Magnitude } |M| &= \sqrt{A_x^2 + A_y^2 + A_z^2} \\[6pt]
-\text{Dynamic Surge} &= |M| - 9.80\,\text{m/s}^2 \\[6pt]
+\text{Dynamic Shock } |M|_{\text{shock}} &= \left||M| - 9.80\,\text{m/s}^2\right| \\[6pt]
 \text{Pitch } \theta &= \text{atan2}\left(A_x, \sqrt{A_y^2 + A_z^2}\right) \times \frac{180^\circ}{\pi} \\[6pt]
 \text{Roll } \phi &= \text{atan2}(A_y, A_z) \times \frac{180^\circ}{\pi} \\[6pt]
-\text{Dynamic Sway} &= A_y - 9.80 \cdot \sin\left(\phi \cdot \frac{\pi}{180}\right) \\[6pt]
+\text{Dynamic Sway} &= A_y - 9.80665 \cdot \cos\left(\theta \cdot \frac{\pi}{180}\right) \cdot \sin\left(\phi \cdot \frac{\pi}{180}\right) \\[6pt]
+\text{Dynamic Heave} &= A_z - 9.80665 \cdot \cos\left(\theta \cdot \frac{\pi}{180}\right) \cdot \cos\left(\phi \cdot \frac{\pi}{180}\right) \\[6pt]
 \text{RMS Sway} &= \sqrt{\frac{1}{N}\sum_{i=1}^N (A_{y,i} - \mu_y)^2}
 \end{aligned}$$

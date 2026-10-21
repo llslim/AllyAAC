@@ -249,6 +249,10 @@ Gesture Studio is structured into four specialized personas:
   - Displays Per-Class F1 Score, Precision, Recall, and Confusion Matrix.
   - Reports average inference latency and hardware memory footprint.
   - **False-Positive Stress Test Score**: Evaluates model resistance against a standardized 10-minute continuous baseline of typing, wheelchair driving, and eating.
+* **Settings Menu 6-Point Telemetry Diagnostic Checklist & Live Inspector (`#tab-pane-diagnostics` / `Alt + D`)**:
+  - Accessible directly from **Settings → `🩺 Diagnostics`**, **Settings → `Hardware`**, keyboard shortcut **`Alt + D`**, or the **`🩺 Inspect`** button in Gesture Studio.
+  - Inspects 6 real-time telemetry layers: (1) 50 Hz Telemetry Clock & Source Pipe, (2) Raw Accelerometer Vector, GSP `0x02` Structured-Array/Flat-Float Unpacking & Unit Scale ($G$ vs $\text{m/s}^2$), (3) Inclinometry Angles (`Pitch` $\theta$ & `Roll` $\phi$), (4) 3D Gravity-Compensated Dynamic Forces (`Sway`, `|M| Shock`, `Surge Ax`, `Heave Az`), (5) 6-Direction 3D Spatial Reach (`Up`, `Down`, `Forward`, `Backward`, `Left`, `Right`), and (6) Waveform Canvas, Scrubber State & DOM Badge Sync.
+  - Includes interactive **`▶ Run Inspection`**, **`⚡ Test 6-Ch Sweep`** (3-second 50 Hz multi-axis verification wave), **`🔧 Auto-Fix & Tare`** (one-click remediation for frozen scrubbers, muted channels, and baseline drift), and **`📋 Copy Report`**.
 
 ---
 

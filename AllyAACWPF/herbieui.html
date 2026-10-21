@@ -2090,17 +2090,20 @@ body {
   <!-- SUB-VIEW 5: TELEMETRY PHYSICS, AXES & SWAY REFERENCE GUIDE -->
   <!-- ========================================================================= -->
   <div id="studio-pane-help" class="flex-1 hidden flex-col gap-3 pt-2.5 overflow-y-auto custom-scrollbar min-h-0" style="display: none;">
-    <!-- Header Banner -->
+    <!--Header Banner -->
     <div class="bg-[#11111B] border border-[#313244] rounded-xl p-4 flex items-center justify-between flex-wrap gap-3 shadow-sm">
       <div>
         <h2 class="text-sm font-black text-[#CDD6F4] flex items-center gap-2">
-          <span>📚</span> IMU Telemetry Physics, Axes & Sway Measurement Guide
+          <span>📚</span> IMU Telemetry Physics, 6-Channel Waveform & Diagnostic Inspector Guide
         </h2>
         <p class="text-[11px] text-[#A6ADC8] mt-0.5">
-          Comprehensive clinical reference for 9-DoF linear acceleration, inclinometry, postural sway computation, and shockwave filtering.
+          Comprehensive clinical reference for 9-DoF linear acceleration, 3D gravity compensation, 6-direction spatial reach, and the real-time diagnostic checklist.
         </p>
       </div>
       <div class="flex items-center gap-2">
+        <button onclick="openSettingsModal('diagnostics')" class="px-2.5 py-1 rounded-lg bg-[#A6E3A1]/15 hover:bg-[#A6E3A1]/25 border border-[#A6E3A1]/40 text-[#A6E3A1] text-xs font-bold transition active:scale-95 flex items-center gap-1">
+          <span>🩺</span> <span>Open Diagnostic Inspector (Alt+D)</span>
+        </button>
         <span class="px-2.5 py-1 rounded-lg bg-[#89B4FA]/10 border border-[#89B4FA]/30 text-[#89B4FA] text-xs font-mono font-bold">50 Hz Movesense IMU</span>
       </div>
     </div>
@@ -2186,7 +2189,7 @@ body {
               Raw lateral acceleration on the <b class="text-[#A6E3A1]">Ay</b> axis isolated from static tilt. A sudden spike in Ay indicates an intentional lateral swipe or wave gesture.
             </p>
             <div class="mt-auto pt-1 font-mono text-[9px] text-[#FAB387] bg-[#11111B] p-1.5 rounded">
-              Sway_lat(t) = Ay(t) - g · sin(Roll)
+              Sway_lat(t) = Ay(t) - g · cos(Pitch) · sin(Roll)
             </div>
           </div>
 
@@ -2248,11 +2251,49 @@ body {
           Subtracting static Earth gravity isolates pure <b>kinetic shockwaves and voluntary gesture energy</b>:
         </p>
         <div class="font-mono text-xs text-[#FAB387] bg-[#181825] p-2 rounded-lg border border-[#313244] text-center">
-          Surge = |M| - 9.8 m/s²
+          Shock = ||M| - 9.8 m/s²| &nbsp;•&nbsp; Heave_dyn = Az - g·cos(θ)·cos(φ)
         </div>
         <p class="text-[10px] text-[#A6ADC8]">
-          Resting reads <b>0.0 m/s²</b>. A table knock or arm flick creates an immediate positive spike used by the Tier 0 Kinematic engine for trigger detection.
+          Resting reads <b>0.0 m/s²</b> at any 3D tilt angle. A table knock or arm flick creates an immediate positive spike used by the Tier 0 Kinematic engine for trigger detection.
         </p>
+      </div>
+    </div>
+
+    <!-- Settings Diagnostic Checklist & Real-Time Inspector Guide -->
+    <div class="bg-[#11111B] border border-[#313244] rounded-xl p-4 flex flex-col gap-3 shadow-sm">
+      <div class="flex items-center justify-between border-b border-[#313244]/60 pb-2 flex-wrap gap-2">
+        <span class="text-xs font-black text-[#89DCEB] flex items-center gap-1.5 uppercase tracking-wider">
+          <span>🩺</span> 6-Point Diagnostic Checklist & Real-Time Telemetry Inspector (Settings → Diagnostics / Alt+D)
+        </span>
+        <button onclick="openSettingsModal('diagnostics')" class="px-2.5 py-1 rounded-lg bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] text-[11px] font-black transition active:scale-95">
+          Launch Inspector Now 🩺
+        </button>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-2.5 text-[11px] text-[#A6ADC8]">
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">1. 50Hz Clock & Source Pipe</div>
+          Verifies active sample rate (Hz), frame delta (ms), and ring buffer status across Movesense BLE, WebView2 Host Bridge, or 50Hz Simulation.
+        </div>
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">2. Vector & Unit Scale (G vs m/s²)</div>
+          Validates GSP <code>0x02</code> structured-array & flat-float multi-sample unpacking, auto-detects G-to-m/s² scaling, and tracks NaN drops.
+        </div>
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">3. Inclinometry Angles (θ, φ)</div>
+          Verifies 3D <code>atan2</code> Pitch and Roll angles within [-90°, +90°] and checks tare calibration offsets.
+        </div>
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">4. 3D Gravity-Compensated Forces</div>
+          Inspects Sway (<code>Ay - g·cosθ·sinφ</code>), Heave (<code>Az - g·cosθ·cosφ</code>), Surge (<code>Ax</code>), and symmetric <code>||M|-9.8|</code> shock.
+        </div>
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">5. 6-Direction Spatial Reach</div>
+          Validates live Upward, Downward, Forward, Backward, Left, and Right reach excursions (cm) across all baseline pitch angles.
+        </div>
+        <div class="bg-[#181825] border border-[#313244] p-2.5 rounded-lg">
+          <div class="font-bold text-[#CDD6F4] mb-1">6. Canvas, Scrubber & Auto-Fix</div>
+          Detects if the waveform is paused in <code>SCRUB</code> mode or if channels are muted, with one-click <b>⚡ Test 6-Ch Sweep</b> and <b>🔧 Auto-Fix & Tare</b>.
+        </div>
       </div>
     </div>
   </div>
@@ -5987,43 +6028,49 @@ function updateSettingsDiagnosticLiveMonitor() {
   if (!pane || pane.style.display === 'none') return;
 
   const latest = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1] : null;
-  const hzEl = document.getElementById('diag-live-hz-badge');
-  if (hzEl) {
-    const hz = studioStreamStats.measuredHz || 0;
-    const isLive = (Date.now() - (studioStreamStats.lastSampleAt || 0)) < 1200;
-    hzEl.textContent = isLive ? `${hz} Hz • ${studioStreamStats.source} (${studioWaveformMode.toUpperCase()})` : `0 Hz • IDLE (${studioWaveformMode.toUpperCase()})`;
-    hzEl.style.color = isLive ? '#A6E3A1' : '#FAB387';
-    hzEl.style.borderColor = isLive ? '#A6E3A1' : '#FAB387';
+  const hz = studioStreamStats.measuredHz || 0;
+  const isLive = (Date.now() - (studioStreamStats.lastSampleAt || 0)) < 1200;
+
+  const setTxt = (id, txt) => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = txt;
+  };
+
+  const dotEl = document.getElementById('diag-live-stream-dot');
+  if (dotEl) {
+    dotEl.style.backgroundColor = isLive ? '#A6E3A1' : '#F38BA8';
   }
+  setTxt('diag-live-source', studioStreamStats.source || 'Idle');
+  setTxt('diag-live-hz', isLive ? `${hz} Hz` : '0 Hz');
+  setTxt('diag-live-wf-mode', studioWaveformMode.toUpperCase());
 
   if (latest) {
-    const setTxt = (id, txt) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = txt;
-    };
     const magShock = typeof latest.magShock === 'number' ? latest.magShock : Math.abs((latest.mag || 9.8) - 9.8);
     const surgeVal = typeof latest.surge === 'number' ? latest.surge : (latest.x || 0);
     const heaveVal = typeof latest.heave === 'number' ? latest.heave : ((latest.z || 9.8) - 9.8);
 
-    setTxt('diag-live-pitch', `${(latest.pitch || 0).toFixed(1)}°`);
-    setTxt('diag-live-roll', `${(latest.roll || 0).toFixed(1)}°`);
-    setTxt('diag-live-sway', `${(latest.sway || 0).toFixed(2)} m/s²`);
-    setTxt('diag-live-mag', `${magShock.toFixed(2)} m/s²`);
-    setTxt('diag-live-surge', `${surgeVal.toFixed(2)} m/s²`);
-    setTxt('diag-live-heave', `${heaveVal.toFixed(2)} m/s²`);
+    setTxt('diag-val-pitch', `${(latest.pitch || 0).toFixed(1)}°`);
+    setTxt('diag-val-roll', `${(latest.roll || 0).toFixed(1)}°`);
+    setTxt('diag-val-sway', `${(latest.sway || 0).toFixed(2)}`);
+    setTxt('diag-val-mag', `${magShock.toFixed(2)}`);
+    setTxt('diag-val-surge', `${surgeVal.toFixed(2)}`);
+    setTxt('diag-val-heave', `${heaveVal.toFixed(2)}`);
+
+    setTxt('diag-status-pitch', studioWaveformChannels.pitch ? 'LIVE' : 'MUTED');
+    setTxt('diag-status-roll', studioWaveformChannels.roll ? 'LIVE' : 'MUTED');
+    setTxt('diag-status-sway', '3D-Comp m/s²');
+    setTxt('diag-status-mag', `|M|=${(latest.mag || 9.8).toFixed(1)}`);
+    setTxt('diag-status-surge', 'Ax m/s²');
+    setTxt('diag-status-heave', '3D-Comp m/s²');
   }
 
   if (reachState && reachState.current) {
-    const setTxt = (id, txt) => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = txt;
-    };
-    setTxt('diag-live-up', `${(reachState.current.up || 0).toFixed(1)} cm`);
-    setTxt('diag-live-down', `${(reachState.current.down || 0).toFixed(1)} cm`);
-    setTxt('diag-live-fwd', `${(reachState.current.forward || 0).toFixed(1)} cm`);
-    setTxt('diag-live-back', `${(reachState.current.backward || 0).toFixed(1)} cm`);
-    setTxt('diag-live-left', `${(reachState.current.left || 0).toFixed(1)} cm`);
-    setTxt('diag-live-right', `${(reachState.current.right || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-up', `${(reachState.current.up || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-down', `${(reachState.current.down || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-fwd', `${(reachState.current.forward || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-back', `${(reachState.current.backward || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-left', `${(reachState.current.left || 0).toFixed(1)} cm`);
+    setTxt('diag-reach-right', `${(reachState.current.right || 0).toFixed(1)} cm`);
   }
 }
 
@@ -6254,38 +6301,30 @@ function renderSettingsDiagnosticChecklist(report) {
   const warnCount = report.checks.filter(c => c.status === 'WARN').length;
   const passCount = report.checks.filter(c => c.status === 'PASS').length;
 
-  const banner = document.getElementById('diag-summary-banner');
-  const iconEl = document.getElementById('diag-summary-icon');
-  const titleEl = document.getElementById('diag-summary-title');
-  const subEl = document.getElementById('diag-summary-subtitle');
-  const badgeEl = document.getElementById('diag-last-run-badge');
+  const ledEl = document.getElementById('diag-overall-led');
+  const labelEl = document.getElementById('diag-last-run-label');
+  const badgeEl = document.getElementById('diag-overall-badge');
+  const timeStr = new Date().toLocaleTimeString([], { hour12: false });
 
   if (badgeEl) {
-    const timeStr = new Date().toLocaleTimeString([], { hour12: false });
-    badgeEl.textContent = `${passCount}/6 PASS • ${timeStr}`;
+    badgeEl.textContent = failCount > 0 ? `${failCount} FAIL • ${passCount}/6 PASS` : (warnCount > 0 ? `${passCount}/6 PASS (${warnCount} WARN)` : `ALL 6 PASS • ${timeStr}`);
     badgeEl.style.color = failCount > 0 ? '#F38BA8' : (warnCount > 0 ? '#F9E2AF' : '#A6E3A1');
     badgeEl.style.borderColor = failCount > 0 ? '#F38BA8' : (warnCount > 0 ? '#F9E2AF' : '#A6E3A1');
+    badgeEl.style.backgroundColor = failCount > 0 ? 'rgba(243,139,168,0.15)' : (warnCount > 0 ? 'rgba(249,226,175,0.15)' : 'rgba(166,227,161,0.15)');
   }
-
-  if (banner && iconEl && titleEl && subEl) {
+  if (ledEl) {
+    ledEl.style.backgroundColor = failCount > 0 ? '#F38BA8' : (warnCount > 0 ? '#F9E2AF' : '#A6E3A1');
+  }
+  if (labelEl) {
     if (failCount > 0) {
-      banner.style.borderColor = '#F38BA8';
-      iconEl.textContent = '🚨';
-      titleEl.textContent = `Inspection Found ${failCount} Blocking Issue(s) & ${warnCount} Warning(s)`;
-      titleEl.style.color = '#F38BA8';
-      subEl.textContent = 'Click "🔧 Auto-Fix & Tare" to automatically resolve scrubber locks, channel mutes, and baseline drift.';
+      labelEl.textContent = `Found ${failCount} blocking issue(s) at ${timeStr} — Click "🔧 Auto-Fix & Tare" to resolve`;
+      labelEl.style.color = '#F38BA8';
     } else if (warnCount > 0) {
-      banner.style.borderColor = '#F9E2AF';
-      iconEl.textContent = '⚠️';
-      titleEl.textContent = `Inspection Complete: ${passCount}/6 Passed (${warnCount} Advisory)`;
-      titleEl.style.color = '#F9E2AF';
-      subEl.textContent = 'Click "⚡ Test 6-Ch Sweep" to inject a 50Hz multi-axis telemetry wave and validate all 6 channels live.';
+      labelEl.textContent = `Inspected at ${timeStr} (${warnCount} advisory) — Click "⚡ Test 6-Ch Sweep" to verify live 50Hz stream`;
+      labelEl.style.color = '#F9E2AF';
     } else {
-      banner.style.borderColor = '#A6E3A1';
-      iconEl.textContent = '✅';
-      titleEl.textContent = 'All 6 Telemetry & Spatial Reach Diagnostic Checks Passed!';
-      titleEl.style.color = '#A6E3A1';
-      subEl.textContent = `Real-time 50Hz pipeline (${report.source}) is actively measuring all 6 waveform channels and 6 reach directions.`;
+      labelEl.textContent = `Verified at ${timeStr} • 50Hz ${report.source} pipeline active across all 6 channels & 6 reach axes`;
+      labelEl.style.color = '#A6E3A1';
     }
   }
 
