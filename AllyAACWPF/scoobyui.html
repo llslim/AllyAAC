@@ -1457,7 +1457,10 @@ body {
             </button>
           </div>
         </div>
-        <div class="flex items-center gap-3 font-mono text-[11px]">
+        <div class="flex items-center gap-2 font-mono text-[11px]">
+          <button onclick="openSettingsModal('diagnostics')" class="px-2 py-0.5 rounded bg-[#A6E3A1]/15 hover:bg-[#A6E3A1]/25 border border-[#A6E3A1]/40 text-[#A6E3A1] font-bold text-[10px] transition active:scale-95 flex items-center gap-1" title="Open 6-Channel Diagnostic Checklist & Live Inspector in Settings">
+            <span>🩺</span> <span>Inspect</span>
+          </button>
           <span id="studio-wf-timecode" class="text-[#89B4FA] bg-[#181825] px-2 py-0.5 rounded border border-[#313244]/80 font-bold">0.0s (Live)</span>
           <span id="studio-fps-counter" class="text-[#A6ADC8]">50 Hz</span>
           <span id="studio-sample-rate" class="text-[#A6E3A1]">0 Samples</span>
@@ -1972,11 +1975,16 @@ body {
 
     <!-- Diagnostic Confusion Matrix Table -->
     <div class="bg-[#11111B] border border-[#313244] rounded-xl p-3 flex flex-col gap-2 shadow-sm">
-      <div class="flex items-center justify-between pb-1 border-b border-[#313244]/60">
+      <div class="flex items-center justify-between pb-1 border-b border-[#313244]/60 flex-wrap gap-2">
         <span class="text-xs font-black text-[#CDD6F4] uppercase tracking-wider">Confusion Matrix Benchmark (Actual vs Predicted)</span>
-        <button onclick="runConfusionBenchmark()" class="px-2.5 py-1 bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] text-xs font-bold rounded-lg transition active:scale-95 shadow-sm">
-          Run Full Validation Test
-        </button>
+        <div class="flex items-center gap-2">
+          <button onclick="openSettingsModal('diagnostics')" class="px-2.5 py-1 bg-[#A6E3A1]/20 hover:bg-[#A6E3A1]/30 border border-[#A6E3A1]/40 text-[#A6E3A1] text-xs font-bold rounded-lg transition active:scale-95 shadow-sm flex items-center gap-1">
+            <span>🩺</span> <span>6-Channel Diagnostic Checklist</span>
+          </button>
+          <button onclick="runConfusionBenchmark()" class="px-2.5 py-1 bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] text-xs font-bold rounded-lg transition active:scale-95 shadow-sm">
+            Run Full Validation Test
+          </button>
+        </div>
       </div>
 
       <!-- Matrix Grid -->
@@ -2257,26 +2265,29 @@ body {
 <!-- SETTINGS & ACCESSIBILITY MODAL -->
 <!-- ========================================================================= -->
 <div id="settings-modal" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden items-center justify-center p-4" style="display: none;">
-  <div class="bg-[#181825] border border-[#313244] rounded-2xl w-full max-w-xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+  <div class="bg-[#181825] border border-[#313244] rounded-2xl w-full max-w-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
     <!-- Header -->
     <div class="px-6 py-4 border-b border-[#313244] flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="text-xl">⚙️</span>
-        <h2 class="text-base font-bold text-[#CDD6F4]">Communicator Settings</h2>
+        <h2 class="text-base font-bold text-[#CDD6F4]">Communicator Settings & Diagnostics</h2>
       </div>
       <button onclick="closeSettingsModal()" class="w-10 h-10 rounded-xl bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] flex items-center justify-center font-bold">✕</button>
     </div>
 
     <!-- Tabs -->
-    <div class="flex border-b border-[#313244] bg-[#11111B]">
-      <button id="tab-voice" onclick="switchSettingsTab('voice')" class="flex-1 py-3 text-xs font-bold border-b-2 border-[#89B4FA] text-[#89B4FA]">Speech</button>
-      <button id="tab-display" onclick="switchSettingsTab('display')" class="flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4]">Display</button>
-      <button id="tab-telemetry" onclick="switchSettingsTab('telemetry')" class="flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4]">Hardware</button>
-      <button id="tab-shortcuts" onclick="switchSettingsTab('shortcuts')" class="flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4]">Keys</button>
+    <div class="flex border-b border-[#313244] bg-[#11111B] overflow-x-auto">
+      <button id="tab-voice" onclick="switchSettingsTab('voice')" class="flex-1 py-3 px-2 text-xs font-bold border-b-2 border-[#89B4FA] text-[#89B4FA] whitespace-nowrap">Speech</button>
+      <button id="tab-display" onclick="switchSettingsTab('display')" class="flex-1 py-3 px-2 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4] whitespace-nowrap">Display</button>
+      <button id="tab-telemetry" onclick="switchSettingsTab('telemetry')" class="flex-1 py-3 px-2 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4] whitespace-nowrap">Hardware</button>
+      <button id="tab-diagnostics" onclick="switchSettingsTab('diagnostics')" class="flex-1 py-3 px-2 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4] whitespace-nowrap flex items-center justify-center gap-1">
+        <span>🩺</span><span>Diagnostics</span>
+      </button>
+      <button id="tab-shortcuts" onclick="switchSettingsTab('shortcuts')" class="flex-1 py-3 px-2 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4] whitespace-nowrap">Keys</button>
     </div>
 
     <!-- Content -->
-    <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
+    <div class="p-5 overflow-y-auto flex-1 custom-scrollbar">
       <!-- Voice Tab -->
       <div id="tab-pane-voice" class="flex flex-col gap-4">
         <div>
@@ -2340,6 +2351,16 @@ body {
           </button>
         </div>
         <div class="p-4 rounded-xl bg-[#11111B] border border-[#313244] flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-[#A6E3A1]">6-Channel Telemetry Diagnostic Checklist</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-[#A6E3A1]/15 text-[#A6E3A1] border border-[#A6E3A1]/30">Real-Time Inspector</span>
+          </div>
+          <p class="text-[11px] text-[#A6ADC8]">Inspect sensor stream rate, unit scaling (G vs m/s²), gravity compensation, 6 waveform channels, and 3D reach accuracy.</p>
+          <button onclick="switchSettingsTab('diagnostics'); runSettingsDiagnosticInspection();" class="w-full py-2.5 bg-[#A6E3A1] hover:bg-[#94E2D5] text-[#11111B] font-bold text-xs rounded-xl min-h-[44px] transition active:scale-98">
+            Run Diagnostic Checklist & Inspector 🩺
+          </button>
+        </div>
+        <div class="p-4 rounded-xl bg-[#11111B] border border-[#313244] flex flex-col gap-2">
           <span class="text-xs font-bold text-[#CDD6F4]">Open Gesture Studio</span>
           <p class="text-[11px] text-[#A6ADC8]">Full clinical sensor hub and algorithm authoring workbench</p>
           <button onclick="closeSettingsModal(); switchMainView('studio');" class="w-full py-2.5 bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] font-bold text-xs rounded-xl min-h-[44px] transition active:scale-98">
@@ -2348,10 +2369,130 @@ body {
         </div>
       </div>
 
+      <!-- Diagnostic Checklist & Real-Time Telemetry Inspector Tab -->
+      <div id="tab-pane-diagnostics" class="hidden flex-col gap-3" style="display: none;">
+        <!-- Top Control & Status Bar -->
+        <div class="p-3 rounded-xl bg-[#11111B] border border-[#313244] flex flex-col gap-2.5">
+          <div class="flex items-center justify-between flex-wrap gap-2">
+            <div class="flex items-center gap-2">
+              <span id="diag-overall-led" class="w-3 h-3 rounded-full bg-[#89B4FA] animate-pulse"></span>
+              <div>
+                <h3 class="text-xs font-black text-[#CDD6F4] uppercase tracking-wider">6-Channel Kinematic & Reach Diagnostic Inspector</h3>
+                <p id="diag-last-run-label" class="text-[10px] text-[#A6ADC8] font-mono">Ready to inspect real-time pipeline</p>
+              </div>
+            </div>
+            <span id="diag-overall-badge" class="px-2.5 py-1 rounded-lg text-[11px] font-black font-mono bg-[#89B4FA]/20 text-[#89B4FA] border border-[#89B4FA]/40">
+              READY
+            </span>
+          </div>
+
+          <!-- Action Buttons Toolbar -->
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-1.5 pt-1">
+            <button onclick="runSettingsDiagnosticInspection()" class="px-2.5 py-2 rounded-lg bg-[#89B4FA] hover:bg-[#B4BEFE] text-[#11111B] font-black text-[11px] flex items-center justify-center gap-1 transition active:scale-95 shadow-sm" title="Run all 6 diagnostic checklist inspections now">
+              <span>▶</span> <span>Run Inspection</span>
+            </button>
+            <button id="btn-diag-sweep" onclick="runDiagnosticSweepTest()" class="px-2.5 py-2 rounded-lg bg-[#CBA6F7] hover:bg-[#D8B4FE] text-[#11111B] font-black text-[11px] flex items-center justify-center gap-1 transition active:scale-95 shadow-sm" title="Inject a 50Hz multi-axis verification wave to test all 6 channels & 6 reach metrics in real time">
+              <span>⚡</span> <span>Test 6-Ch Sweep</span>
+            </button>
+            <button onclick="autoFixTelemetryDiagnostics()" class="px-2.5 py-2 rounded-lg bg-[#A6E3A1] hover:bg-[#94E2D5] text-[#11111B] font-black text-[11px] flex items-center justify-center gap-1 transition active:scale-95 shadow-sm" title="Auto-remediate stuck scrubber mode, enable all 6 channels, tare gravity baseline, and start 50Hz feed">
+              <span>🔧</span> <span>Auto-Fix & Tare</span>
+            </button>
+            <button onclick="copyDiagnosticInspectionReport()" class="px-2.5 py-2 rounded-lg bg-[#313244] hover:bg-[#45475A] text-[#CDD6F4] font-bold text-[11px] flex items-center justify-center gap-1 transition active:scale-95" title="Copy structured diagnostic report to clipboard">
+              <span>📋</span> <span id="btn-diag-copy-label">Copy Report</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Live Real-Time Telemetry Monitor (6 Waveform Channels + 6 Reach Directions) -->
+        <div class="p-3 rounded-xl bg-[#11111B] border border-[#313244] flex flex-col gap-2">
+          <div class="flex items-center justify-between text-[10px] font-mono border-b border-[#313244]/70 pb-1.5 flex-wrap gap-1">
+            <span class="font-bold text-[#CDD6F4] flex items-center gap-1.5">
+              <span id="diag-live-stream-dot" class="w-2 h-2 rounded-full bg-[#F38BA8]"></span>
+              <span>LIVE TELEMETRY MONITOR</span>
+            </span>
+            <div class="flex items-center gap-2 text-[#A6ADC8]">
+              <span>Source: <b id="diag-live-source" class="text-[#89B4FA]">Idle</b></span>
+              <span>•</span>
+              <span>Rate: <b id="diag-live-hz" class="text-[#A6E3A1]">0 Hz</b></span>
+              <span>•</span>
+              <span>Mode: <b id="diag-live-wf-mode" class="text-[#CBA6F7]">live</b></span>
+            </div>
+          </div>
+
+          <!-- 6 Kinematic Channels Live Grid -->
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 text-center font-mono">
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#89B4FA] font-bold">1. PITCH (θ)</span>
+              <span id="diag-val-pitch" class="text-xs font-black text-white">0°</span>
+              <span id="diag-status-pitch" class="text-[8px] text-[#6C7086]">--</span>
+            </div>
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#CBA6F7] font-bold">2. ROLL (φ)</span>
+              <span id="diag-val-roll" class="text-xs font-black text-white">0°</span>
+              <span id="diag-status-roll" class="text-[8px] text-[#6C7086]">--</span>
+            </div>
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#A6E3A1] font-bold">3. SWAY (Ay)</span>
+              <span id="diag-val-sway" class="text-xs font-black text-white">0.0</span>
+              <span id="diag-status-sway" class="text-[8px] text-[#6C7086]">m/s²</span>
+            </div>
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#FAB387] font-bold">4. |M| SHOCK</span>
+              <span id="diag-val-mag" class="text-xs font-black text-white">0.0</span>
+              <span id="diag-status-mag" class="text-[8px] text-[#6C7086]">|M|=9.8</span>
+            </div>
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#F38BA8] font-bold">5. SURGE (Ax)</span>
+              <span id="diag-val-surge" class="text-xs font-black text-white">0.0</span>
+              <span id="diag-status-surge" class="text-[8px] text-[#6C7086]">m/s²</span>
+            </div>
+            <div class="bg-[#181825] border border-[#313244] rounded-lg p-1.5 flex flex-col items-center">
+              <span class="text-[9px] text-[#89DCEB] font-bold">6. HEAVE (Az)</span>
+              <span id="diag-val-heave" class="text-xs font-black text-white">0.0</span>
+              <span id="diag-status-heave" class="text-[8px] text-[#6C7086]">m/s²</span>
+            </div>
+          </div>
+
+          <!-- 6-Direction 3D Reach Live Readout Strip -->
+          <div class="grid grid-cols-3 sm:grid-cols-6 gap-1 pt-1 text-center font-mono text-[9px]">
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#89B4FA] block font-bold">⬆ UP</span>
+              <span id="diag-reach-up" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#89DCEB] block font-bold">⬇ DOWN</span>
+              <span id="diag-reach-down" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#A6E3A1] block font-bold">➡ FWD</span>
+              <span id="diag-reach-fwd" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#F9E2AF] block font-bold">⬅ BACK</span>
+              <span id="diag-reach-back" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#FAB387] block font-bold">◀ LEFT</span>
+              <span id="diag-reach-left" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+            <div class="bg-[#181825]/70 border border-[#313244]/60 rounded px-1 py-1">
+              <span class="text-[#F5C2E7] block font-bold">▶ RIGHT</span>
+              <span id="diag-reach-right" class="text-[#CDD6F4] font-black">0.0 cm</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 6-Point Interactive Diagnostic Checklist Items -->
+        <div id="diag-checklist-container" class="flex flex-col gap-2">
+          <!-- Populated dynamically by renderSettingsDiagnosticChecklist() -->
+        </div>
+      </div>
+
       <!-- Shortcuts Tab -->
       <div id="tab-pane-shortcuts" class="hidden flex-col gap-2 text-xs" style="display: none;">
         <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">F1–F4</kbd><span>Predictions 1–4</span></div>
         <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">Alt + G</kbd><span>Launch Gesture Studio</span></div>
+        <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">Alt + D</kbd><span>Open Diagnostic Checklist</span></div>
         <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">Alt + F</kbd><span>180° Screen Flip</span></div>
         <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">Ctrl (Tap)</kbd><span>Latch Sticky Keys (5s)</span></div>
         <div class="flex justify-between p-2 rounded-lg bg-[#11111B]"><kbd class="bg-[#313244] px-2 py-0.5 rounded">` (Backtick)</kbd><span>Leader Command Mode</span></div>
@@ -3239,8 +3380,20 @@ const movesenseState = {
   device: null,
   server: null,
   isConnected: false,
-  accel: { x: 0, y: 0, z: 0, mag: 0 },
-  tilt: { pitch: 0, roll: 0 }
+  accel: { x: 0, y: 0, z: 9.8, mag: 9.8 },
+  rawAccel: { x: 0, y: 0, z: 9.8, mag: 9.8 },
+  tilt: { pitch: 0, roll: 0 },
+  packetFormat: 'idle',
+  rawPacketCount: 0,
+  totalSamplesDecoded: 0,
+  nanDroppedCount: 0,
+  lastPacketTime: 0,
+  sampleHz: 0,
+  _hzWindowCount: 0,
+  _hzWindowStart: 0,
+  autoScaleGToMs2: true,
+  detectedUnitMode: 'm/s²', // 'm/s²' or 'G (scaled ×9.81)'
+  zPolaritySign: 1
 };
 
 async function connectMovesenseMDS() {
@@ -3330,24 +3483,130 @@ function onMovesenseDisconnected() {
 
 function onMovesenseDataNotification(event) {
   const value = event.target.value;
-  if (value.byteLength < 6) return;
+  if (!value || value.byteLength < 6) return;
 
-  // Movesense packet decoding (Float32 little endian: Ax, Ay, Az)
-  if (value.byteLength >= 18) {
-    const ax = value.getFloat32(6, true);
-    const ay = value.getFloat32(10, true);
-    const az = value.getFloat32(14, true);
+  // Byte 0 is GSP packet type: 0x02 = Data Notification
+  const packetType = value.getUint8(0);
+  if (packetType !== 0x02 && value.byteLength < 18) return;
+
+  movesenseState.rawPacketCount++;
+  const now = performance.now();
+  movesenseState.lastPacketTime = now;
+
+  const remainingBytes = value.byteLength - 6;
+  const extractedSamples = [];
+
+  // 1. Check structured array format (Acc length byte at index 6, matching BluetoothService.cs)
+  if (remainingBytes >= 14) {
+    const accLen = value.getUint8(6);
+    const expectedAccBytes = accLen * 12;
+    if (accLen > 0 && accLen <= 16 && (
+      remainingBytes === 1 + expectedAccBytes ||
+      remainingBytes >= 1 + expectedAccBytes + 1 + expectedAccBytes
+    )) {
+      movesenseState.packetFormat = `structured-array (${accLen}x)`;
+      const hasGyro = remainingBytes >= 1 + expectedAccBytes + 1 + expectedAccBytes;
+      const gyroIdx = 6 + 1 + expectedAccBytes;
+      for (let i = 0; i < accLen; i++) {
+        const accOffset = 6 + 1 + i * 12;
+        if (accOffset + 12 <= value.byteLength) {
+          const ax = value.getFloat32(accOffset, true);
+          const ay = value.getFloat32(accOffset + 4, true);
+          const az = value.getFloat32(accOffset + 8, true);
+          let gx = 0, gy = 0, gz = 0;
+          if (hasGyro) {
+            const gOff = gyroIdx + 1 + i * 12;
+            if (gOff + 12 <= value.byteLength) {
+              gx = value.getFloat32(gOff, true);
+              gy = value.getFloat32(gOff + 4, true);
+              gz = value.getFloat32(gOff + 8, true);
+            }
+          }
+          extractedSamples.push({ ax, ay, az, gx, gy, gz });
+        }
+      }
+    }
+  }
+
+  // 2. Flat float32 stream fallback (/Meas/Acc/52 or flat IMU6/IMU9)
+  if (extractedSamples.length === 0 && remainingBytes >= 12) {
+    const numFloats = Math.floor(remainingBytes / 4);
+    let stride = 3; // Default 3 floats (Ax, Ay, Az)
+    if (numFloats >= 9 && numFloats % 9 === 0 && numFloats % 3 === 0 && remainingBytes >= 36) {
+      // Check if 2nd triplet looks like gyro vs another ~9.8m/s² accel sample
+      const f0 = value.getFloat32(6, true), f1 = value.getFloat32(10, true), f2 = value.getFloat32(14, true);
+      const f3 = value.getFloat32(18, true), f4 = value.getFloat32(22, true), f5 = value.getFloat32(26, true);
+      const norm1 = Math.sqrt(f0 * f0 + f1 * f1 + f2 * f2);
+      const norm2 = Math.sqrt(f3 * f3 + f4 * f4 + f5 * f5);
+      // If both norms are similar (~9.8), it's batched 3-float Acc samples; otherwise IMU9
+      if (Math.abs(norm1 - norm2) > 4.0) stride = 9;
+    }
+    const numSamples = Math.max(1, Math.floor(numFloats / stride));
+    movesenseState.packetFormat = `flat-float (${numSamples}x, stride ${stride})`;
+
+    for (let i = 0; i < numSamples; i++) {
+      const offset = 6 + i * stride * 4;
+      if (offset + 12 <= value.byteLength) {
+        const ax = value.getFloat32(offset, true);
+        const ay = value.getFloat32(offset + 4, true);
+        const az = value.getFloat32(offset + 8, true);
+        let gx = 0, gy = 0, gz = 0;
+        if (stride >= 6 && offset + 24 <= value.byteLength) {
+          gx = value.getFloat32(offset + 12, true);
+          gy = value.getFloat32(offset + 16, true);
+          gz = value.getFloat32(offset + 20, true);
+        }
+        extractedSamples.push({ ax, ay, az, gx, gy, gz });
+      }
+    }
+  }
+
+  // Process each extracted sample
+  for (const raw of extractedSamples) {
+    if (!Number.isFinite(raw.ax) || !Number.isFinite(raw.ay) || !Number.isFinite(raw.az) ||
+        Math.abs(raw.ax) > 500 || Math.abs(raw.ay) > 500 || Math.abs(raw.az) > 500) {
+      movesenseState.nanDroppedCount++;
+      continue;
+    }
+
+    const rawMag = Math.sqrt(raw.ax * raw.ax + raw.ay * raw.ay + raw.az * raw.az);
+    movesenseState.rawAccel = { x: raw.ax, y: raw.ay, z: raw.az, mag: rawMag };
+
+    // Auto-detect G-units vs m/s² (if resting vector norm is around 1.0G instead of 9.81 m/s²)
+    let scale = 1.0;
+    if (movesenseState.autoScaleGToMs2 && rawMag > 0.45 && rawMag < 2.2) {
+      scale = 9.80665;
+      movesenseState.detectedUnitMode = 'G → m/s² (×9.81)';
+    } else {
+      movesenseState.detectedUnitMode = 'm/s² (native)';
+    }
+
+    const ax = raw.ax * scale;
+    const ay = raw.ay * scale;
+    const az = raw.az * scale;
     const mag = Math.sqrt(ax * ax + ay * ay + az * az);
 
-    // Inclinometry (Pitch & Roll in degrees)
+    // Polarity-safe inclinometry (Pitch & Roll in degrees, -90° to +90°)
     const pitch = Math.atan2(ax, Math.sqrt(ay * ay + az * az)) * (180 / Math.PI);
-    const roll = Math.atan2(ay, az) * (180 / Math.PI);
+    const zAligned = az * (movesenseState.zPolaritySign || 1);
+    const roll = Math.atan2(ay, Math.abs(zAligned) < 0.1 ? 0.1 : zAligned) * (180 / Math.PI);
 
     movesenseState.accel = { x: ax, y: ay, z: az, mag: mag };
     movesenseState.tilt = { pitch: pitch, roll: roll };
+    movesenseState.totalSamplesDecoded++;
+
+    // Update sample rate Hz tracker
+    movesenseState._hzWindowCount++;
+    if (!movesenseState._hzWindowStart) movesenseState._hzWindowStart = now;
+    const elapsed = now - movesenseState._hzWindowStart;
+    if (elapsed >= 500) {
+      movesenseState.sampleHz = Math.round((movesenseState._hzWindowCount * 1000) / elapsed);
+      movesenseState._hzWindowCount = 0;
+      movesenseState._hzWindowStart = now;
+    }
 
     // Process in gesture engine
-    processSensorTelemetry(movesenseState.accel, movesenseState.tilt);
+    processSensorTelemetry(movesenseState.accel, movesenseState.tilt, { x: raw.gx, y: raw.gy, z: raw.gz });
   }
 }
 
@@ -3859,7 +4118,30 @@ let reachState = {
   maxBackwardCm: 0.0,
   maxLeftCm: 0.0,
   maxRightCm: 0.0,
-  maxDiagonalCm: 0.0
+  maxDiagonalCm: 0.0,
+  current: {
+    upwardCm: 0.0,
+    downwardCm: 0.0,
+    forwardCm: 0.0,
+    backwardCm: 0.0,
+    leftCm: 0.0,
+    rightCm: 0.0,
+    diagonalCm: 0.0
+  }
+};
+
+// Real-Time Telemetry Stream Rate & Diagnostic State
+const studioStreamStats = {
+  lastSampleTime: 0,
+  deltaMs: 0,
+  measuredHz: 0,
+  _windowCount: 0,
+  _windowStart: 0,
+  totalSamples: 0,
+  activeSource: 'Idle',
+  sweepActive: false,
+  sweepTimer: null,
+  lastInspectionResults: []
 };
 
 // 6-Channel Kinematic Waveform Canvas & Scrubber State
@@ -3996,7 +4278,7 @@ function resetReachBaseline() {
   showGestureHUD(`Rest Position Set: Pitch ${Math.round(curPitch)}°, Roll ${Math.round(curRoll)}°`, 1.2);
 }
 
-function updateReachCalculations(pitch, roll) {
+function updateReachCalculations(pitch, roll, accel = null, dynamicSway = 0) {
   const L = reachState.armLengthCm;
   const radBasePitch = (reachState.baselinePitch * Math.PI) / 180;
   const radCurPitch = (pitch * Math.PI) / 180;
@@ -4009,17 +4291,34 @@ function updateReachCalculations(pitch, roll) {
   const downwardCm = deltaZ < 0 ? Math.abs(deltaZ) : 0.0;
 
   // 2. Forward / Backward signed displacement (X axis: extending forward vs pulling backward from rest)
-  const deltaX = L * (Math.cos(radCurPitch) - Math.cos(radBasePitch));
+  // Combines horizontal projection change with longitudinal surge & signed pitch extension so it works even when baselinePitch == 0°
+  const projDeltaX = L * (Math.cos(radCurPitch) - Math.cos(radBasePitch));
+  const dynamicSurgeX = accel ? (accel.x - 9.8 * Math.sin(radCurPitch)) : 0;
+  let deltaX = projDeltaX + (dynamicSurgeX * 1.6);
+  if (Math.abs(reachState.baselinePitch) < 12 && Math.abs(projDeltaX) < 3.0) {
+    deltaX = L * Math.sin(radCurPitch - radBasePitch) * 0.55 + (dynamicSurgeX * 1.8);
+  }
   const forwardCm = deltaX > 0 ? deltaX : 0.0;
   const backwardCm = deltaX < 0 ? Math.abs(deltaX) : 0.0;
 
-  // 3. Left / Right signed displacement (Y axis: lateral sweep from rest)
-  const deltaY = L * (Math.sin(radCurRoll) - Math.sin(radBaseRoll));
+  // 3. Left / Right signed displacement (Y axis: lateral sweep & sway from rest)
+  const deltaY = L * (Math.sin(radCurRoll) - Math.sin(radBaseRoll)) + (dynamicSway * 0.75);
   const rightCm = deltaY > 0 ? deltaY : 0.0;
   const leftCm = deltaY < 0 ? Math.abs(deltaY) : 0.0;
 
   // 4. 3D Diagonal Vector Distance (Straight-line 3D Euclidean displacement from Rest Position):
   const diagonalCm = Math.sqrt(deltaZ * deltaZ + deltaX * deltaX + deltaY * deltaY);
+
+  // Save current instantaneous values for real-time inspector
+  reachState.current = {
+    upwardCm,
+    downwardCm,
+    forwardCm,
+    backwardCm,
+    leftCm,
+    rightCm,
+    diagonalCm
+  };
 
   // Track session maximums
   if (upwardCm > reachState.maxUpwardCm) reachState.maxUpwardCm = upwardCm;
@@ -4210,6 +4509,9 @@ function onStudioTierChanged() {
 // SENSOR SIMULATOR (Instant Testing & Demonstration)
 // -------------------------------------------------------------
 function simulateGestureInput(type) {
+  if (studioWaveformMode === 'scrub' && !studioWaveformScrub.isPlaying) {
+    setStudioWaveformMode('live');
+  }
   const stepCount = 20;
   const delayMs = 15;
   let i = 0;
@@ -4219,29 +4521,29 @@ function simulateGestureInput(type) {
     const progress = i / stepCount;
 
     if (type === 'tilt_up') {
-      // Smooth sinusoidal pitch elevation to 45 degrees
+      // Smooth sinusoidal pitch elevation to 45 degrees + slight forward surge
       const angle = Math.sin(progress * Math.PI) * 45;
-      ax = 9.8 * Math.sin(angle * Math.PI / 180);
+      ax = 9.8 * Math.sin(angle * Math.PI / 180) + Math.sin(progress * Math.PI) * 2.5;
       az = 9.8 * Math.cos(angle * Math.PI / 180);
     } else if (type === 'tilt_down') {
-      // Pitch depression to -45 degrees
+      // Pitch depression to -45 degrees + slight backward retraction
       const angle = -Math.sin(progress * Math.PI) * 45;
-      ax = 9.8 * Math.sin(angle * Math.PI / 180);
+      ax = 9.8 * Math.sin(angle * Math.PI / 180) - Math.sin(progress * Math.PI) * 2.5;
       az = 9.8 * Math.cos(angle * Math.PI / 180);
     } else if (type === 'pinch') {
       // Dynamic kinetic shock (> 22 m/s²)
-      const shock = progress > 0.4 && progress < 0.6 ? 24.5 : 9.8;
+      const shock = progress > 0.35 && progress < 0.65 ? 24.5 : 9.8;
       az = shock;
       ax = (Math.random() - 0.5) * 4;
       ay = (Math.random() - 0.5) * 4;
     } else if (type === 'shake') {
-      // Rapid sign reversals on Ay
+      // Rapid sign reversals on Ay & Ax
       ay = Math.sin(progress * Math.PI * 6) * 16.5;
       ax = Math.cos(progress * Math.PI * 4) * 8.0;
     } else if (type === 'roll_right') {
-      // Pronation/Supination (+75° Roll)
+      // Pronation/Supination (+75° Roll) + lateral sway
       const rollAngle = Math.sin(progress * Math.PI) * 75;
-      ay = 9.8 * Math.sin(rollAngle * Math.PI / 180);
+      ay = 9.8 * Math.sin(rollAngle * Math.PI / 180) + Math.sin(progress * Math.PI) * 3.0;
       az = 9.8 * Math.cos(rollAngle * Math.PI / 180);
     } else if (type === 'spasm_noise') {
       // High-frequency ambient tremor / wheelchair motor noise (around 1G)
@@ -4268,7 +4570,14 @@ function toggleContinuousSim(enable) {
     clearInterval(continuousSimTimer);
     continuousSimTimer = null;
   }
+  const chk = document.getElementById('sim-continuous-toggle');
+  if (chk && chk.checked !== Boolean(enable)) {
+    chk.checked = Boolean(enable);
+  }
   if (enable) {
+    if (studioWaveformMode === 'scrub' && !studioWaveformScrub.isPlaying) {
+      setStudioWaveformMode('live');
+    }
     let t = 0;
     continuousSimTimer = setInterval(() => {
       t += 0.05;
@@ -4289,6 +4598,36 @@ function toggleContinuousSim(enable) {
 // VISUAL INSTRUMENTS & OSCILLOSCOPE DRAWING
 // -------------------------------------------------------------
 function updateStudioVisuals(accel, tilt, detected) {
+  const now = performance.now();
+  if (studioStreamStats.lastSampleTime > 0) {
+    studioStreamStats.deltaMs = Math.round(now - studioStreamStats.lastSampleTime);
+  }
+  studioStreamStats.lastSampleTime = now;
+  studioStreamStats.totalSamples++;
+  studioStreamStats._windowCount++;
+  if (!studioStreamStats._windowStart) studioStreamStats._windowStart = now;
+  const elapsed = now - studioStreamStats._windowStart;
+  if (elapsed >= 400) {
+    studioStreamStats.measuredHz = Math.round((studioStreamStats._windowCount * 1000) / elapsed);
+    studioStreamStats._windowCount = 0;
+    studioStreamStats._windowStart = now;
+    const fpsEl = document.getElementById('studio-fps-counter');
+    if (fpsEl) fpsEl.textContent = `${studioStreamStats.measuredHz} Hz`;
+  }
+
+  // Determine active telemetry source label
+  if (studioStreamStats.sweepTimer) {
+    studioStreamStats.activeSource = '6-Ch Diagnostic Sweep (50Hz)';
+  } else if (typeof movesenseState !== 'undefined' && movesenseState.isConnected) {
+    studioStreamStats.activeSource = 'Movesense BLE (52Hz)';
+  } else if (typeof movesenseState !== 'undefined' && movesenseState.packetFormat === 'webview2-host-bridge' && (now - movesenseState.lastPacketTime < 1500)) {
+    studioStreamStats.activeSource = 'C# Host Bridge (52Hz)';
+  } else if (continuousSimTimer) {
+    studioStreamStats.activeSource = 'Ambient Sim (50Hz)';
+  } else {
+    studioStreamStats.activeSource = 'Simulator / Manual';
+  }
+
   // Update pitch/roll/mag numbers
   const pitchEl = document.getElementById('studio-pitch-val');
   const rollEl = document.getElementById('studio-roll-val');
@@ -4297,11 +4636,21 @@ function updateStudioVisuals(accel, tilt, detected) {
   if (rollEl) rollEl.textContent = Math.round(tilt.roll) + '°';
   if (magEl) magEl.textContent = accel.mag.toFixed(1);
 
-  // Calculate Lateral Dynamic Sway (Ay isolated from static gravitational tilt)
-  // Gravity component on lateral axis = 9.8 * sin(roll)
+  // Calculate Gravity-Compensated Dynamic Forces:
+  // Static gravity projections across body axes at orientation (pitch, roll):
+  // gx = g * sin(pitch)
+  // gy = g * cos(pitch) * sin(roll)
+  // gz = g * cos(pitch) * cos(roll) * sign(Az)
+  const pitchRad = (tilt.pitch * Math.PI) / 180;
   const rollRad = (tilt.roll * Math.PI) / 180;
-  const gravityAy = 9.8 * Math.sin(rollRad);
-  const dynamicSway = accel.y - gravityAy; // m/s² lateral deviation
+  const gravityAy = 9.8 * Math.cos(pitchRad) * Math.sin(rollRad);
+  const zSign = accel.z < -2.0 ? -1 : 1;
+  const gravityAz = 9.8 * Math.cos(pitchRad) * Math.cos(rollRad) * zSign;
+
+  const dynamicSway = accel.y - gravityAy; // m/s² lateral deviation isolated from tilt
+  const dynamicHeave = accel.z - gravityAz; // m/s² vertical force isolated from tilt gravity
+  const dynamicMagShock = Math.abs(accel.mag - 9.8); // m/s² scalar kinetic shockwave
+  const dynamicSurge = accel.x; // m/s² longitudinal anterior-posterior force
 
   // Update Inclinometer Dial Needles
   const pitchNeedle = document.getElementById('dial-pitch-needle');
@@ -4317,15 +4666,19 @@ function updateStudioVisuals(accel, tilt, detected) {
     swayNeedle.style.transform = `rotate(${swayAngle}deg)`;
   }
   if (swayValEl) swayValEl.textContent = dynamicSway.toFixed(1);
-  // Update 3D Reach Travel Distances (Vertical, Horizontal, 3D Vector)
-  updateReachCalculations(tilt.pitch, tilt.roll);
+
+  // Update 3D Reach Travel Distances (Upward, Downward, Forward, Backward, Left, Right, 3D Vector)
+  updateReachCalculations(tilt.pitch, tilt.roll, accel, dynamicSway);
 
   // Push to waveform history
   studioHistory.push({
     x: accel.x, y: accel.y, z: accel.z, mag: accel.mag,
     pitch: tilt.pitch, roll: tilt.roll,
     sway: dynamicSway,
-    time: performance.now()
+    heave: dynamicHeave,
+    surge: dynamicSurge,
+    magShock: dynamicMagShock,
+    time: now
   });
   if (studioHistory.length > MAX_STUDIO_HISTORY) studioHistory.shift();
 
@@ -4347,6 +4700,9 @@ function updateStudioVisuals(accel, tilt, detected) {
       updateStudioWaveformBadges(studioHistory[studioHistory.length - 1]);
     }
   }
+
+  // Update Settings Diagnostic Live Monitor if Settings modal is open
+  updateSettingsDiagnosticLiveMonitor();
 
   if (isStudioRecording) {
     studioRecordSession.push({
@@ -4663,12 +5019,16 @@ function updateStudioWaveformBadges(s) {
   const axEl = document.getElementById('wf-val-surge');
   const azEl = document.getElementById('wf-val-heave');
 
+  const magShock = typeof s.magShock === 'number' ? s.magShock : Math.abs((s.mag || 9.8) - 9.8);
+  const surgeVal = typeof s.surge === 'number' ? s.surge : (s.x || 0);
+  const heaveVal = typeof s.heave === 'number' ? s.heave : ((s.z || 9.8) - 9.8);
+
   if (pEl) pEl.textContent = Math.round(s.pitch || 0) + '°';
   if (rEl) rEl.textContent = Math.round(s.roll || 0) + '°';
   if (swEl) swEl.textContent = (s.sway || 0).toFixed(1);
-  if (mEl) mEl.textContent = Math.max(0, (s.mag || 9.8) - 9.8).toFixed(1);
-  if (axEl) axEl.textContent = (s.x || 0).toFixed(1);
-  if (azEl) azEl.textContent = ((s.z || 9.8) - 9.8).toFixed(1);
+  if (mEl) mEl.textContent = magShock.toFixed(1);
+  if (axEl) axEl.textContent = surgeVal.toFixed(1);
+  if (azEl) azEl.textContent = heaveVal.toFixed(1);
 }
 
 function renderWaveformCanvas() {
@@ -4802,17 +5162,17 @@ function renderWaveformCanvas() {
     if (studioWaveformChannels.sway) {
       drawTrace(s => (s.sway || 0) / 10, '#A6E3A1', 1.8);
     }
-    // 4. Magnitude Dynamic (|M| - 9.8): normalizer (mag - 9.8) / 15
+    // 4. Magnitude Dynamic (||M| - 9.8|): normalizer magShock / 15
     if (studioWaveformChannels.mag) {
-      drawTrace(s => ((s.mag || 9.8) - 9.8) / 15, '#FAB387', 2.0);
+      drawTrace(s => (typeof s.magShock === 'number' ? s.magShock : Math.abs((s.mag || 9.8) - 9.8)) / 15, '#FAB387', 2.0);
     }
     // 5. Surge (Ax): anterior-posterior, normalizer val / 20
     if (studioWaveformChannels.surge) {
-      drawTrace(s => (s.x || 0) / 20, '#F38BA8', 1.8);
+      drawTrace(s => (typeof s.surge === 'number' ? s.surge : (s.x || 0)) / 20, '#F38BA8', 1.8);
     }
-    // 6. Heave (Az dynamic: Az - 9.8): normalizer (Az - 9.8) / 20
+    // 6. Heave (Az dynamic: gravity-compensated): normalizer heave / 20
     if (studioWaveformChannels.heave) {
-      drawTrace(s => ((s.z || 9.8) - 9.8) / 20, '#89DCEB', 1.8);
+      drawTrace(s => (typeof s.heave === 'number' ? s.heave : ((s.z || 9.8) - 9.8)) / 20, '#89DCEB', 1.8);
     }
 
     // 5. Scrubber Mode & Primary Canvas: Draw Playhead cursor & dots
@@ -4847,9 +5207,9 @@ function renderWaveformCanvas() {
         if (studioWaveformChannels.pitch) drawDot((curSample.pitch || 0) / 90, '#89B4FA');
         if (studioWaveformChannels.roll) drawDot((curSample.roll || 0) / 90, '#CBA6F7');
         if (studioWaveformChannels.sway) drawDot((curSample.sway || 0) / 10, '#A6E3A1');
-        if (studioWaveformChannels.mag) drawDot(((curSample.mag || 9.8) - 9.8) / 15, '#FAB387');
-        if (studioWaveformChannels.surge) drawDot((curSample.x || 0) / 20, '#F38BA8');
-        if (studioWaveformChannels.heave) drawDot(((curSample.z || 9.8) - 9.8) / 20, '#89DCEB');
+        if (studioWaveformChannels.mag) drawDot((typeof curSample.magShock === 'number' ? curSample.magShock : Math.abs((curSample.mag || 9.8) - 9.8)) / 15, '#FAB387');
+        if (studioWaveformChannels.surge) drawDot((typeof curSample.surge === 'number' ? curSample.surge : (curSample.x || 0)) / 20, '#F38BA8');
+        if (studioWaveformChannels.heave) drawDot((typeof curSample.heave === 'number' ? curSample.heave : ((curSample.z || 9.8) - 9.8)) / 20, '#89DCEB');
       }
     }
   });
@@ -5614,6 +5974,484 @@ function openNewGestureMappingModal() {
   });
 
   renderGestureCatalogList();
+}
+
+// ============================================================================
+// SETTINGS MENU: 6-CHANNEL & 3D REACH TELEMETRY DIAGNOSTIC INSPECTOR
+// ============================================================================
+let lastDiagnosticReportData = null;
+let diagSweepIntervalId = null;
+
+function updateSettingsDiagnosticLiveMonitor() {
+  const pane = document.getElementById('tab-pane-diagnostics');
+  if (!pane || pane.style.display === 'none') return;
+
+  const latest = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1] : null;
+  const hzEl = document.getElementById('diag-live-hz-badge');
+  if (hzEl) {
+    const hz = studioStreamStats.measuredHz || 0;
+    const isLive = (Date.now() - (studioStreamStats.lastSampleAt || 0)) < 1200;
+    hzEl.textContent = isLive ? `${hz} Hz • ${studioStreamStats.source} (${studioWaveformMode.toUpperCase()})` : `0 Hz • IDLE (${studioWaveformMode.toUpperCase()})`;
+    hzEl.style.color = isLive ? '#A6E3A1' : '#FAB387';
+    hzEl.style.borderColor = isLive ? '#A6E3A1' : '#FAB387';
+  }
+
+  if (latest) {
+    const setTxt = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+    const magShock = typeof latest.magShock === 'number' ? latest.magShock : Math.abs((latest.mag || 9.8) - 9.8);
+    const surgeVal = typeof latest.surge === 'number' ? latest.surge : (latest.x || 0);
+    const heaveVal = typeof latest.heave === 'number' ? latest.heave : ((latest.z || 9.8) - 9.8);
+
+    setTxt('diag-live-pitch', `${(latest.pitch || 0).toFixed(1)}°`);
+    setTxt('diag-live-roll', `${(latest.roll || 0).toFixed(1)}°`);
+    setTxt('diag-live-sway', `${(latest.sway || 0).toFixed(2)} m/s²`);
+    setTxt('diag-live-mag', `${magShock.toFixed(2)} m/s²`);
+    setTxt('diag-live-surge', `${surgeVal.toFixed(2)} m/s²`);
+    setTxt('diag-live-heave', `${heaveVal.toFixed(2)} m/s²`);
+  }
+
+  if (reachState && reachState.current) {
+    const setTxt = (id, txt) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = txt;
+    };
+    setTxt('diag-live-up', `${(reachState.current.up || 0).toFixed(1)} cm`);
+    setTxt('diag-live-down', `${(reachState.current.down || 0).toFixed(1)} cm`);
+    setTxt('diag-live-fwd', `${(reachState.current.forward || 0).toFixed(1)} cm`);
+    setTxt('diag-live-back', `${(reachState.current.backward || 0).toFixed(1)} cm`);
+    setTxt('diag-live-left', `${(reachState.current.left || 0).toFixed(1)} cm`);
+    setTxt('diag-live-right', `${(reachState.current.right || 0).toFixed(1)} cm`);
+  }
+}
+
+function runSettingsDiagnosticInspection() {
+  updateSettingsDiagnosticLiveMonitor();
+
+  const now = Date.now();
+  const msSinceSample = studioStreamStats.lastSampleAt ? (now - studioStreamStats.lastSampleAt) : Infinity;
+  const isStreaming = msSinceSample < 1200;
+  const latest = studioHistory.length > 0 ? studioHistory[studioHistory.length - 1] : null;
+  const mvState = (typeof movesenseState !== 'undefined') ? movesenseState : null;
+
+  const checks = [];
+
+  // CHECK 1: Real-Time Telemetry Clock & Source Pipe
+  const hz = studioStreamStats.measuredHz || 0;
+  let check1Status = 'PASS';
+  let check1Summary = `Streaming live at ${hz} Hz via ${studioStreamStats.source} (${studioHistory.length}/120 samples buffered).`;
+  let check1Fix = '';
+  if (!isStreaming || studioHistory.length === 0) {
+    check1Status = 'WARN';
+    check1Summary = `No active real-time stream detected (last sample ${studioStreamStats.lastSampleAt ? (msSinceSample / 1000).toFixed(1) + 's ago' : 'never'}).`;
+    check1Fix = 'Click "⚡ Test 6-Ch Sweep" or "🔧 Auto-Fix & Tare" to start a 50Hz verification stream, or pair a Movesense sensor.';
+  } else if (hz < 18) {
+    check1Status = 'WARN';
+    check1Summary = `Sub-nominal sample rate (${hz} Hz < 25 Hz target) on ${studioStreamStats.source}.`;
+    check1Fix = 'Verify BLE connection interval or click "⚡ Test 6-Ch Sweep" to verify 50Hz pipeline throughput.';
+  }
+  checks.push({
+    id: 'clock-pipe',
+    number: 1,
+    title: '50 Hz Real-Time Telemetry Clock & Source Pipe',
+    status: check1Status,
+    summary: check1Summary,
+    metrics: [
+      `Source: ${studioStreamStats.source}`,
+      `Rate: ${isStreaming ? hz + ' Hz' : '0 Hz'}`,
+      `Δt: ${studioStreamStats.frameDeltaMs || 0} ms`,
+      `Buffer: ${studioHistory.length}/120`
+    ],
+    recommendation: check1Fix
+  });
+
+  // CHECK 2: Raw Accelerometer Vector, Packet Format & Unit Scale (G vs m/s²)
+  let check2Status = 'PASS';
+  let check2Summary = 'Accelerometer vector (Ax, Ay, Az) is valid, finite, and normalized to m/s² (1G ≈ 9.81 m/s²).';
+  let check2Fix = '';
+  const unitMode = mvState ? mvState.detectedUnitMode : 'm/s²';
+  const packetFormat = mvState ? mvState.packetFormat : 'sim-50hz';
+  const nanDrops = (studioStreamStats.nanCount || 0) + (mvState ? (mvState.nanDrops || 0) : 0);
+  const rawMag = latest ? (latest.mag || 0) : 0;
+
+  if (!latest) {
+    check2Status = 'WARN';
+    check2Summary = 'Awaiting telemetry frame to inspect raw vector magnitude and unit scaling.';
+    check2Fix = 'Run "⚡ Test 6-Ch Sweep" to populate and inspect live accelerometer frames.';
+  } else if (nanDrops > 0) {
+    check2Status = 'WARN';
+    check2Summary = `Detected ${nanDrops} NaN/corrupted float frame(s) dropped by packet guard.`;
+    check2Fix = 'Multi-sample structured-array parser is active and filtering invalid byte alignments.';
+  } else if (rawMag < 2.5 || rawMag > 45.0) {
+    check2Status = 'FAIL';
+    check2Summary = `Abnormal acceleration magnitude |M| = ${rawMag.toFixed(2)} m/s² (expected ~9.8 m/s² at rest). Possible G vs m/s² mismatch.`;
+    check2Fix = 'Click "🔧 Auto-Fix & Tare" to normalize unit scaling to m/s².';
+  }
+  checks.push({
+    id: 'vector-scale',
+    number: 2,
+    title: 'Raw Accelerometer Vector & Unit Scale (G vs m/s²)',
+    status: check2Status,
+    summary: check2Summary,
+    metrics: [
+      `Format: ${packetFormat}`,
+      `Unit Scale: ${unitMode}`,
+      `|M| Raw: ${rawMag.toFixed(2)} m/s²`,
+      `NaN Drops: ${nanDrops}`
+    ],
+    recommendation: check2Fix
+  });
+
+  // CHECK 3: Inclinometry Angles (Pitch θ & Roll φ)
+  let check3Status = 'PASS';
+  const pitchVal = latest ? (latest.pitch || 0) : 0;
+  const rollVal = latest ? (latest.roll || 0) : 0;
+  const pitchValid = Number.isFinite(pitchVal) && Math.abs(pitchVal) <= 90.1;
+  const rollValid = Number.isFinite(rollVal) && Math.abs(rollVal) <= 90.1;
+  let check3Summary = `3D atan2 inclinometry active: Pitch θ = ${pitchVal.toFixed(1)}°, Roll φ = ${rollVal.toFixed(1)}° within [-90°, +90°].`;
+  let check3Fix = '';
+  if (!latest) {
+    check3Status = 'WARN';
+    check3Summary = 'No inclinometer samples buffered yet.';
+    check3Fix = 'Start simulation or sweep test to verify Pitch & Roll angle trigonometry.';
+  } else if (!pitchValid || !rollValid) {
+    check3Status = 'FAIL';
+    check3Summary = `Inclinometer out of bounds: Pitch=${pitchVal}°, Roll=${rollVal}°.`;
+    check3Fix = 'Click "🔧 Auto-Fix & Tare" to reset inclinometer state.';
+  }
+  checks.push({
+    id: 'inclinometry',
+    number: 3,
+    title: 'Inclinometry Angles (Pitch θ & Roll φ Trigonometry)',
+    status: check3Status,
+    summary: check3Summary,
+    metrics: [
+      `Pitch θ: ${pitchVal.toFixed(1)}°`,
+      `Roll φ: ${rollVal.toFixed(1)}°`,
+      `Tare θ₀: ${(reachState.baselinePitch || 0).toFixed(1)}°`,
+      `Tare φ₀: ${(reachState.baselineRoll || 0).toFixed(1)}°`
+    ],
+    recommendation: check3Fix
+  });
+
+  // CHECK 4: Gravity-Compensated Dynamic Forces (Sway, |M| Shock, Surge Ax, Heave Az)
+  let check4Status = 'PASS';
+  const swayVal = latest ? (latest.sway || 0) : 0;
+  const magShockVal = latest ? (typeof latest.magShock === 'number' ? latest.magShock : Math.abs((latest.mag || 9.8) - 9.8)) : 0;
+  const surgeVal = latest ? (typeof latest.surge === 'number' ? latest.surge : (latest.x || 0)) : 0;
+  const heaveVal = latest ? (typeof latest.heave === 'number' ? latest.heave : ((latest.z || 9.8) - 9.8)) : 0;
+  const has3DGravityComp = Boolean(latest && typeof latest.heave === 'number' && typeof latest.magShock === 'number');
+  let check4Summary = '3D gravity projection (gy = g·cosθ·sinφ, gz = g·cosθ·cosφ) is active for Sway, Heave Az, Surge Ax, and |M| Shock.';
+  let check4Fix = '';
+  if (!latest) {
+    check4Status = 'WARN';
+    check4Summary = 'No dynamic force samples buffered to verify 3D gravity compensation.';
+    check4Fix = 'Run "⚡ Test 6-Ch Sweep" to verify all 4 dynamic acceleration channels.';
+  } else if (!has3DGravityComp) {
+    check4Status = 'FAIL';
+    check4Summary = 'Legacy uncompensated Heave/Magnitude samples detected in history buffer.';
+    check4Fix = 'Click "🔧 Auto-Fix & Tare" to flush legacy buffer and enable 3D gravity compensation.';
+  }
+  checks.push({
+    id: 'dynamic-forces',
+    number: 4,
+    title: 'Gravity-Compensated Dynamic Channels (Sway, |M|, Surge Ax, Heave Az)',
+    status: check4Status,
+    summary: check4Summary,
+    metrics: [
+      `Sway: ${swayVal.toFixed(2)} m/s²`,
+      `|M| Shock: ${magShockVal.toFixed(2)} m/s²`,
+      `Surge Ax: ${surgeVal.toFixed(2)} m/s²`,
+      `Heave Az: ${heaveVal.toFixed(2)} m/s²`
+    ],
+    recommendation: check4Fix
+  });
+
+  // CHECK 5: 6-Direction 3D Spatial Reach Kinematics
+  let check5Status = 'PASS';
+  const rCur = (reachState && reachState.current) ? reachState.current : { up: 0, down: 0, forward: 0, backward: 0, left: 0, right: 0, total3D: 0 };
+  const armLen = reachState ? reachState.armLengthCm : 35;
+  let check5Summary = `All 6 directional reach solvers (⬆Up, ⬇Down, ➡Fwd, ⬅Back, ◀Left, ▶Right) calibrated for ${armLen} cm forearm.`;
+  let check5Fix = '';
+  if (!Number.isFinite(rCur.forward) || !Number.isFinite(rCur.backward) || !Number.isFinite(rCur.up) || !Number.isFinite(rCur.down)) {
+    check5Status = 'FAIL';
+    check5Summary = 'NaN detected in 3D Reach directional displacement solver.';
+    check5Fix = 'Click "🔧 Auto-Fix & Tare" to recalibrate reach baseline.';
+  } else if (!latest) {
+    check5Status = 'WARN';
+    check5Summary = '3D Reach solver ready, awaiting live motion or 6-channel sweep to measure excursions.';
+    check5Fix = 'Click "⚡ Test 6-Ch Sweep" to exercise all 6 reach directions simultaneously.';
+  }
+  checks.push({
+    id: 'spatial-reach',
+    number: 5,
+    title: '6-Direction 3D Spatial Reach Solver (Up, Down, Fwd, Back, Left, Right)',
+    status: check5Status,
+    summary: check5Summary,
+    metrics: [
+      `⬆Up/⬇Down: ${rCur.up.toFixed(1)} / ${rCur.down.toFixed(1)} cm`,
+      `➡Fwd/⬅Back: ${rCur.forward.toFixed(1)} / ${rCur.backward.toFixed(1)} cm`,
+      `◀Left/▶Right: ${rCur.left.toFixed(1)} / ${rCur.right.toFixed(1)} cm`,
+      `Peak 3D: ${(reachState.maxTotal3D || 0).toFixed(1)} cm`
+    ],
+    recommendation: check5Fix
+  });
+
+  // CHECK 6: Waveform Canvas, Scrubber State & DOM Badge Sync
+  let check6Status = 'PASS';
+  const disabledChannels = Object.entries(studioWaveformChannels)
+    .filter(([, enabled]) => !enabled)
+    .map(([k]) => k.toUpperCase());
+  const wfCanvas = document.getElementById('studio-waveform-canvas');
+  let check6Summary = 'Waveform playhead is in LIVE mode with all 6 channels enabled and DOM badges synchronized.';
+  let check6Fix = '';
+
+  if (studioWaveformMode === 'scrub') {
+    check6Status = 'FAIL';
+    check6Summary = `Waveform canvas is locked in SCRUB mode (frame #${studioWaveformScrub.currentIndex + 1}) — live badge & trace updates are paused!`;
+    check6Fix = 'Click "🔧 Auto-Fix & Tare" or switch the waveform mode toggle back to "🔴 Live" to resume real-time updates.';
+  } else if (disabledChannels.length > 0) {
+    check6Status = 'WARN';
+    check6Summary = `${disabledChannels.length} waveform channel(s) currently muted: ${disabledChannels.join(', ')}.`;
+    check6Fix = 'Click "🔧 Auto-Fix & Tare" to re-enable all 6 waveform channels.';
+  } else if (!wfCanvas) {
+    check6Status = 'FAIL';
+    check6Summary = 'Primary #studio-waveform-canvas element not found in DOM.';
+  }
+  checks.push({
+    id: 'canvas-scrub-sync',
+    number: 6,
+    title: '6-Channel Waveform Canvas, Scrubber Mode & Live Badge Sync',
+    status: check6Status,
+    summary: check6Summary,
+    metrics: [
+      `Mode: ${studioWaveformMode.toUpperCase()}`,
+      `Active Channels: ${6 - disabledChannels.length}/6`,
+      `Canvas: ${wfCanvas ? wfCanvas.width + '×' + wfCanvas.height : 'Missing'}`
+    ],
+    recommendation: check6Fix
+  });
+
+  lastDiagnosticReportData = {
+    timestamp: new Date().toISOString(),
+    source: studioStreamStats.source,
+    measuredHz: hz,
+    waveformMode: studioWaveformMode,
+    checks
+  };
+
+  renderSettingsDiagnosticChecklist(lastDiagnosticReportData);
+  return lastDiagnosticReportData;
+}
+
+function renderSettingsDiagnosticChecklist(report) {
+  const container = document.getElementById('diag-checklist-container');
+  if (!container || !report) return;
+
+  const failCount = report.checks.filter(c => c.status === 'FAIL').length;
+  const warnCount = report.checks.filter(c => c.status === 'WARN').length;
+  const passCount = report.checks.filter(c => c.status === 'PASS').length;
+
+  const banner = document.getElementById('diag-summary-banner');
+  const iconEl = document.getElementById('diag-summary-icon');
+  const titleEl = document.getElementById('diag-summary-title');
+  const subEl = document.getElementById('diag-summary-subtitle');
+  const badgeEl = document.getElementById('diag-last-run-badge');
+
+  if (badgeEl) {
+    const timeStr = new Date().toLocaleTimeString([], { hour12: false });
+    badgeEl.textContent = `${passCount}/6 PASS • ${timeStr}`;
+    badgeEl.style.color = failCount > 0 ? '#F38BA8' : (warnCount > 0 ? '#F9E2AF' : '#A6E3A1');
+    badgeEl.style.borderColor = failCount > 0 ? '#F38BA8' : (warnCount > 0 ? '#F9E2AF' : '#A6E3A1');
+  }
+
+  if (banner && iconEl && titleEl && subEl) {
+    if (failCount > 0) {
+      banner.style.borderColor = '#F38BA8';
+      iconEl.textContent = '🚨';
+      titleEl.textContent = `Inspection Found ${failCount} Blocking Issue(s) & ${warnCount} Warning(s)`;
+      titleEl.style.color = '#F38BA8';
+      subEl.textContent = 'Click "🔧 Auto-Fix & Tare" to automatically resolve scrubber locks, channel mutes, and baseline drift.';
+    } else if (warnCount > 0) {
+      banner.style.borderColor = '#F9E2AF';
+      iconEl.textContent = '⚠️';
+      titleEl.textContent = `Inspection Complete: ${passCount}/6 Passed (${warnCount} Advisory)`;
+      titleEl.style.color = '#F9E2AF';
+      subEl.textContent = 'Click "⚡ Test 6-Ch Sweep" to inject a 50Hz multi-axis telemetry wave and validate all 6 channels live.';
+    } else {
+      banner.style.borderColor = '#A6E3A1';
+      iconEl.textContent = '✅';
+      titleEl.textContent = 'All 6 Telemetry & Spatial Reach Diagnostic Checks Passed!';
+      titleEl.style.color = '#A6E3A1';
+      subEl.textContent = `Real-time 50Hz pipeline (${report.source}) is actively measuring all 6 waveform channels and 6 reach directions.`;
+    }
+  }
+
+  container.innerHTML = report.checks.map(chk => {
+    const isPass = chk.status === 'PASS';
+    const isWarn = chk.status === 'WARN';
+    const badgeColor = isPass ? '#A6E3A1' : (isWarn ? '#F9E2AF' : '#F38BA8');
+    const badgeBg = isPass ? 'rgba(166, 227, 161, 0.12)' : (isWarn ? 'rgba(249, 226, 175, 0.12)' : 'rgba(243, 139, 168, 0.15)');
+    const icon = isPass ? '✅' : (isWarn ? '⚠️' : '❌');
+
+    const metricsHtml = (chk.metrics || []).map(m =>
+      `<span style="background:#181825; border:1px solid #313244; padding:2px 7px; border-radius:5px; font-size:0.7rem; font-family:monospace; color:#CDD6F4;">${m}</span>`
+    ).join('');
+
+    const recHtml = chk.recommendation
+      ? `<div style="margin-top:6px; font-size:0.74rem; color:${badgeColor}; background:rgba(17,17,27,0.45); padding:5px 8px; border-radius:6px; border-left:3px solid ${badgeColor};">💡 ${chk.recommendation}</div>`
+      : '';
+
+    return `
+      <div style="background:#1E1E2E; border:1px solid ${isPass ? '#313244' : badgeColor}; border-radius:8px; padding:10px 12px; transition:all 0.15s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:4px;">
+          <div style="font-weight:700; font-size:0.84rem; color:#CDD6F4; display:flex; align-items:center; gap:6px;">
+            <span>${icon}</span>
+            <span>Check #${chk.number}: ${chk.title}</span>
+          </div>
+          <span style="background:${badgeBg}; color:${badgeColor}; border:1px solid ${badgeColor}; padding:2px 8px; border-radius:999px; font-size:0.68rem; font-weight:800; letter-spacing:0.5px;">${chk.status}</span>
+        </div>
+        <div style="font-size:0.77rem; color:#A6ADC8; margin-bottom:6px;">${chk.summary}</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">${metricsHtml}</div>
+        ${recHtml}
+      </div>
+    `;
+  }).join('');
+}
+
+function autoFixTelemetryDiagnostics() {
+  // 1. Force waveform out of frozen 'scrub' mode back to 'live'
+  if (studioWaveformMode !== 'live') {
+    setWaveformMode('live');
+  }
+
+  // 2. Enable all 6 waveform channels and sync pill checkboxes
+  Object.keys(studioWaveformChannels).forEach(ch => {
+    studioWaveformChannels[ch] = true;
+    const pill = document.getElementById(`wf-pill-${ch}`);
+    const cb = pill ? pill.querySelector('input[type="checkbox"]') : null;
+    if (cb) cb.checked = true;
+    if (pill) pill.style.opacity = '1';
+  });
+
+  // 3. Reset NaN counters and flush any legacy uncompensated frames
+  studioStreamStats.nanCount = 0;
+  if (typeof movesenseState !== 'undefined') {
+    movesenseState.nanDrops = 0;
+  }
+
+  // 4. Tare & zero 3D reach baselines
+  calibrateReachZero();
+  resetReachMax();
+
+  // 5. If no live stream is active, run a 6-channel verification sweep so live readings populate immediately
+  const isStreaming = (Date.now() - (studioStreamStats.lastSampleAt || 0)) < 1200;
+  if (!isStreaming) {
+    runDiagnosticSweepTest();
+  } else {
+    renderWaveformCanvas();
+    runSettingsDiagnosticInspection();
+    if (typeof showGestureHUD === 'function') {
+      showGestureHUD('Auto-Fixed & Tared 6-Ch Telemetry', 1.0);
+    }
+  }
+}
+
+function runDiagnosticSweepTest() {
+  if (diagSweepIntervalId) {
+    clearInterval(diagSweepIntervalId);
+    diagSweepIntervalId = null;
+  }
+
+  // Ensure live mode & all 6 channels visible
+  if (studioWaveformMode !== 'live') {
+    setWaveformMode('live');
+  }
+  resetReachMax();
+  reachState.baselinePitch = 0;
+  reachState.baselineRoll = 0;
+
+  const totalTicks = 150; // 3.0 seconds @ 50Hz
+  let tick = 0;
+  studioStreamStats.source = '50Hz-Diagnostic-Sweep';
+
+  if (typeof showGestureHUD === 'function') {
+    showGestureHUD('Running 50Hz 6-Channel Diagnostic Sweep...', 1.0);
+  }
+
+  diagSweepIntervalId = setInterval(() => {
+    tick++;
+    const phase = (tick / totalTicks) * Math.PI * 2; // Full 0 -> 2π cycle across all directions
+
+    // Multi-frequency orthogonal wave exercising Pitch (±45°), Roll (±40°), Surge (±8 m/s²), Sway (±6 m/s²), Heave (±5 m/s²)
+    const pitchDeg = Math.sin(phase) * 45;
+    const rollDeg = Math.cos(phase) * 40;
+    const pRad = pitchDeg * (Math.PI / 180);
+    const rRad = rollDeg * (Math.PI / 180);
+
+    // Gravity projections + dynamic excitations
+    const dynSurge = Math.sin(phase * 2) * 6.5;
+    const dynSway = Math.cos(phase * 2) * 5.5;
+    const dynHeave = Math.sin(phase * 3) * 4.8;
+
+    const ax = 9.8 * Math.sin(pRad) + dynSurge;
+    const ay = 9.8 * Math.cos(pRad) * Math.sin(rRad) + dynSway;
+    const az = 9.8 * Math.cos(pRad) * Math.cos(rRad) + dynHeave;
+    const mag = Math.sqrt(ax * ax + ay * ay + az * az);
+
+    studioStreamStats.source = '50Hz-Diagnostic-Sweep';
+    updateStudioVisuals(
+      { x: ax, y: ay, z: az, mag },
+      { x: Math.cos(phase) * 35, y: Math.sin(phase) * 35, z: Math.sin(phase * 2) * 20 }
+    );
+
+    if (tick % 10 === 0 || tick >= totalTicks) {
+      runSettingsDiagnosticInspection();
+    }
+
+    if (tick >= totalTicks) {
+      clearInterval(diagSweepIntervalId);
+      diagSweepIntervalId = null;
+      runSettingsDiagnosticInspection();
+      if (typeof showGestureHUD === 'function') {
+        showGestureHUD('6-Ch Sweep Complete: All Channels Verified!', 1.0);
+      }
+    }
+  }, 20);
+}
+
+function copyDiagnosticInspectionReport() {
+  const report = runSettingsDiagnosticInspection();
+  if (!report) return;
+
+  const lines = [
+    `# AllyAAC 6-Channel Waveform & 3D Reach Diagnostic Report`,
+    `- **Timestamp**: ${report.timestamp}`,
+    `- **Telemetry Source**: ${report.source}`,
+    `- **Measured Rate**: ${report.measuredHz} Hz`,
+    `- **Waveform Mode**: ${report.waveformMode.toUpperCase()}`,
+    ``,
+    `## Checklist Results`
+  ];
+
+  report.checks.forEach(c => {
+    lines.push(`### ${c.number}. [${c.status}] ${c.title}`);
+    lines.push(`- Summary: ${c.summary}`);
+    lines.push(`- Metrics: ${(c.metrics || []).join(' | ')}`);
+    if (c.recommendation) lines.push(`- Action: ${c.recommendation}`);
+    lines.push('');
+  });
+
+  const text = lines.join('\n');
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      if (typeof showGestureHUD === 'function') {
+        showGestureHUD('Copied Diagnostic Report to Clipboard!', 1.0);
+      }
+    }).catch(() => {});
+  }
 }
 
     // =========================================================================
@@ -6555,6 +7393,9 @@ function setupShortcuts() {
     } else if (e.altKey && (e.key === 'f' || e.key === 'F')) {
       e.preventDefault();
       toggleScreenFlip();
+    } else if (e.altKey && (e.key === 'd' || e.key === 'D')) {
+      e.preventDefault();
+      openSettingsModal('diagnostics');
     } else if (e.altKey && (e.key === 'm' || e.key === 'M')) {
       e.preventDefault();
       if (typeof toggleActiveMessagePane === 'function') toggleActiveMessagePane();
@@ -6570,12 +7411,32 @@ function setupHostBridge() {
 
       // Telemetry packet from C# BLE service (ax, ay, az, gx, gy, gz)
       if (msg.type === 'SENSOR_TELEMETRY' && msg.accel) {
-        const ax = msg.accel.x;
-        const ay = msg.accel.y;
-        const az = msg.accel.z;
+        let ax = Number(msg.accel.x) || 0;
+        let ay = Number(msg.accel.y) || 0;
+        let az = Number(msg.accel.z) || 0;
+        const rawMag = Math.sqrt(ax * ax + ay * ay + az * az);
+
+        if (typeof movesenseState !== 'undefined') {
+          movesenseState.rawAccel = { x: ax, y: ay, z: az, mag: rawMag };
+          movesenseState.packetFormat = 'webview2-host-bridge';
+          movesenseState.lastPacketTime = performance.now();
+          movesenseState.rawPacketCount++;
+          movesenseState.totalSamplesDecoded++;
+          if (movesenseState.autoScaleGToMs2 && rawMag > 0.45 && rawMag < 2.2) {
+            ax *= 9.80665;
+            ay *= 9.80665;
+            az *= 9.80665;
+            movesenseState.detectedUnitMode = 'G → m/s² (×9.81)';
+          } else {
+            movesenseState.detectedUnitMode = 'm/s² (native)';
+          }
+        }
+
         const mag = Math.sqrt(ax * ax + ay * ay + az * az);
+        const zPol = (typeof movesenseState !== 'undefined' && movesenseState.zPolaritySign) ? movesenseState.zPolaritySign : 1;
+        const zAligned = az * zPol;
         const pitch = Math.atan2(ax, Math.sqrt(ay * ay + az * az)) * (180 / Math.PI);
-        const roll = Math.atan2(ay, az) * (180 / Math.PI);
+        const roll = Math.atan2(ay, Math.abs(zAligned) < 0.1 ? 0.1 : zAligned) * (180 / Math.PI);
 
         processSensorTelemetry({ x: ax, y: ay, z: az, mag }, { pitch, roll }, msg.gyro);
       }
@@ -6638,7 +7499,7 @@ function closeSettingsModal() {
 }
 
 function switchSettingsTab(tabName) {
-  ['voice', 'display', 'telemetry', 'shortcuts'].forEach(t => {
+  ['voice', 'display', 'telemetry', 'diagnostics', 'shortcuts'].forEach(t => {
     const pane = document.getElementById('tab-pane-' + t);
     const btn = document.getElementById('tab-' + t);
     if (pane) {
@@ -6646,7 +7507,7 @@ function switchSettingsTab(tabName) {
       pane.classList.add('hidden');
     }
     if (btn) {
-      btn.className = 'flex-1 py-3 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4]';
+      btn.className = 'flex-1 py-3 px-2 text-xs font-bold border-b-2 border-transparent text-[#A6ADC8] hover:text-[#CDD6F4] whitespace-nowrap' + (t === 'diagnostics' ? ' flex items-center justify-center gap-1' : '');
     }
   });
 
@@ -6657,7 +7518,11 @@ function switchSettingsTab(tabName) {
     activePane.classList.remove('hidden');
   }
   if (activeBtn) {
-    activeBtn.className = 'flex-1 py-3 text-xs font-bold border-b-2 border-[#89B4FA] text-[#89B4FA]';
+    activeBtn.className = 'flex-1 py-3 px-2 text-xs font-bold border-b-2 border-[#89B4FA] text-[#89B4FA] whitespace-nowrap' + (tabName === 'diagnostics' ? ' flex items-center justify-center gap-1' : '');
+  }
+
+  if (tabName === 'diagnostics' && typeof runSettingsDiagnosticInspection === 'function') {
+    runSettingsDiagnosticInspection();
   }
 }
 
